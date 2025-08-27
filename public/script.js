@@ -1,3 +1,4 @@
+// FILE: script.js (Corrected)
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
     const sidebar = document.getElementById('sidebar');
@@ -120,12 +121,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ query }),
             });
 
-            const data = await res.json();
             const responseElement = document.getElementById(responseId);
 
+            // ** THE FIX IS HERE **
+            // First, check if the HTTP response is successful.
             if (!res.ok) {
-                throw new Error(data.error || 'An unknown error occurred.');
+                // If not, try to parse the error message our server sent.
+                const errorData = await res.json();
+                // Then, throw an error to be caught by the 'catch' block.
+                throw new Error(errorData.error || 'An unknown error occurred.');
             }
+            
+            // If we get here, the response was successful, so we can safely parse the JSON.
+            const data = await res.json();
             
             // --- Display successful response ---
             responseElement.innerHTML = `
