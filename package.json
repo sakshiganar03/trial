@@ -1,0 +1,18 @@
+{
+  "name": "edith-ui-project",
+  "version": "1.0.0",
+  "description": "A web app with a Node.js proxy to securely connect to the Gemini API.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "author": "Sakshi",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
+  }
+}

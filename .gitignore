@@ -1,0 +1,4 @@
+# Tells Git which files to ignore.
+
+node_modules
+.env
