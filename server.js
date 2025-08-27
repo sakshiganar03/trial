@@ -1,4 +1,4 @@
-// FILE: server.js
+// FILE: server.js (Corrected)
 // This is your backend. It creates a server that serves your website
 // and provides a secure proxy to the Gemini API.
 
@@ -70,6 +70,13 @@ app.post('/api/gemini', async (req, res) => {
     console.error('Proxy Error:', error);
     res.status(500).json({ error: `Failed to get response from Gemini. ${error.message}` });
   }
+});
+
+// ** THE FIX IS HERE **
+// Add a 404 Not Found handler for any routes that don't match.
+// This should be placed after all your other routes.
+app.use((req, res, next) => {
+  res.status(404).json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
 });
 
 // Start the server
