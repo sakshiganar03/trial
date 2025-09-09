@@ -1,4 +1,4 @@
-// FILE: server.js (Corrected)
+// FILE: server.js
 // This is your backend. It creates a server that serves your website
 // and provides a secure proxy to the Gemini API.
 
@@ -23,6 +23,11 @@ const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub
 // API Proxy Endpoint
 // The frontend will send requests to '/api/gemini' instead of the actual Gemini API.
 app.post('/api/gemini', async (req, res) => {
+  // --- ADD THESE TWO LINES FOR DEBUGGING ---
+  console.log("--- /api/gemini endpoint has been hit ---");
+  console.log("Is the Gemini API Key present on server?", !!process.env.GEMINI_API_KEY);
+  // ------------------------------------------
+
   const { query } = req.body;
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
@@ -72,7 +77,6 @@ app.post('/api/gemini', async (req, res) => {
   }
 });
 
-// ** THE FIX IS HERE **
 // Add a 404 Not Found handler for any routes that don't match.
 // This should be placed after all your other routes.
 app.use((req, res, next) => {
