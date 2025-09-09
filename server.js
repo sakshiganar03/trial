@@ -17,17 +17,12 @@ app.use(express.static('public'));
 // Middleware to parse JSON bodies from incoming requests
 app.use(express.json());
 
-// The System Prompt that defines EDITH's personality and instructions
-const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant. Your responses must be professional, concise, and optimized for a web display. Provide helpful, direct answers, maintaining a professional tone suitable for a high-tech assistant.";
+// ** THE SYSTEM PROMPT HAS BEEN UPDATED HERE **
+const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your responses must be professional, concise, and optimized for small screen display. Provide only the most important information in exactly 60 words or less. Be direct, helpful, and maintain a professional tone suitable for a high-tech assistant.";
 
 // API Proxy Endpoint
 // The frontend will send requests to '/api/gemini' instead of the actual Gemini API.
 app.post('/api/gemini', async (req, res) => {
-  // --- ADD THESE TWO LINES FOR DEBUGGING ---
-  console.log("--- /api/gemini endpoint has been hit ---");
-  console.log("Is the Gemini API Key present on server?", !!process.env.GEMINI_API_KEY);
-  // ------------------------------------------
-
   const { query } = req.body;
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
@@ -45,7 +40,7 @@ app.post('/api/gemini', async (req, res) => {
   const payload = {
     contents: [{ parts: [{ text: enhancedPrompt }] }],
     generationConfig: {
-      maxOutputTokens: 800,
+      maxOutputTokens: 200, // Adjusted for the shorter response length
       temperature: 0.7,
     },
   };
