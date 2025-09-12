@@ -1,10 +1,14 @@
-/* Base Styling */
+/* --- Universal Box Sizing & Base Styling --- */
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Courier New', monospace;
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
     color: #2D3748;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: hidden; /* Prevents horizontal scroll */
     animation: backgroundShift 10s ease-in-out infinite alternate;
 }
 @keyframes backgroundShift {
@@ -26,7 +30,7 @@ body {
     100% { transform: translate(50px, 50px); }
 }
 
-/* Sidebar Styling */
+/* --- Component Styling (Sidebar, Buttons, etc.) --- */
 .sidebar {
     background: rgba(248, 251, 251, 0.9);
     border-right: 2px solid #C5BAFF;
@@ -35,7 +39,6 @@ body {
     transition: transform 0.3s ease-in-out;
 }
 
-/* Main Content Styling */
 .main-heading {
     font-size: 2.5em;
     font-weight: bold;
@@ -48,7 +51,6 @@ body {
     50% { opacity: 0.8; transform: scale(1.05); }
 }
 
-/* Input Area Styling */
 .input-area {
     background: rgba(248, 251, 251, 0.9);
     border: 2px solid #C4D9FF;
@@ -69,7 +71,6 @@ body {
     color: #718096;
 }
 
-/* Button Styling */
 .btn {
     font-family: 'Courier New', monospace;
     font-weight: bold;
@@ -109,7 +110,6 @@ body {
 .submit-btn .spinner { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Chat History Link */
 .chat-history-link {
     display: block; padding: 8px; border-radius: 6px;
     margin-bottom: 4px; color: #5A67D8; text-decoration: none;
@@ -118,7 +118,6 @@ body {
 }
 .chat-history-link:hover { background-color: rgba(196, 217, 255, 0.3); }
 
-/* Modal Styling */
 .modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); }
 .modal-content {
     background: rgba(248, 251, 251, 0.95); border: 2px solid #C5BAFF;
@@ -128,7 +127,6 @@ body {
 .modal-body h4 { color: #5A67D8; font-weight: bold; text-transform: uppercase; }
 .modal-body p, .modal-body li { color: #2D3748; }
 
-/* Response Area Styling */
 .response-section { margin-top: 20px; animation: fadeIn 0.5s ease-out; }
 .response-header { color: #5A67D8; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
 .response-indicator { width: 8px; height: 8px; background: #C5BAFF; border-radius: 50%; animation: responseIndicator 1s ease-in-out infinite; }
@@ -145,52 +143,56 @@ body {
 .error-content { background: rgba(255, 99, 71, 0.1); border-left-color: #e53e3e; color: #c53030; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-
 /* =========================================== */
 /* Responsive Styles for Mobile Phones 📱    */
 /* =========================================== */
-/* This code applies to screens 768px wide or smaller */
 @media (max-width: 768px) {
 
-    /* 1. Make the main heading smaller to fit better on narrow screens */
-    .main-heading {
-        font-size: 1.75rem; /* Reduced from 2.5em */
-        /* Tailwind's `mb-12` is 3rem, which is a lot of space on mobile */
-        margin-bottom: 2rem;
+    /* --- Body & Main Layout --- */
+    body {
+        /* Prevents iOS from zooming in on text inputs when changing orientation */
+        -webkit-text-size-adjust: 100%;
     }
 
-    /* 2. Adjust padding in the main content area */
-    /* Your HTML already uses md:p-8, so this targets the smaller p-4 */
     main.p-4 {
-        padding: 1rem; /* Consistent 1rem padding */
+        /* Ensure padding is consistent and not too large */
+        padding: 0.75rem; /* 12px */
     }
 
-    /* 3. Make the "About Us" modal fit the mobile screen properly */
-    .modal-content {
-        /* Use 95% of the viewport width to ensure it never overflows */
-        width: 95vw;
-        /* Remove the large max-width that was set for desktops */
+    /* --- Central Content Column --- */
+    /* This targets the containers with max-w-3xl in your HTML */
+    .w-full.max-w-3xl {
+        /* **THE KEY FIX**: This overrides Tailwind's max-width on mobile, */
+        /* forcing the container to fit the screen perfectly. */
         max-width: 100%;
     }
 
+    /* --- Typography --- */
+    .main-heading {
+        font-size: 1.75rem; /* 28px */
+        margin-bottom: 2rem;
+    }
+
+    /* --- Modal --- */
+    .modal-content {
+        width: 95vw;
+        max-width: 100%;
+    }
     .modal-header, .modal-body {
-        padding: 1rem; /* Reduce padding inside the modal */
+        padding: 1rem;
     }
-
     .modal-body {
-        font-size: 0.9rem; /* Make modal text slightly smaller for readability */
+        font-size: 0.9rem;
     }
 
-    /* 4. Tweak the text input form for a better mobile feel */
+    /* --- Form Input --- */
     #query-form {
-        margin-top: 0.5rem; /* Reduce top margin */
+        margin-top: 0.5rem;
     }
-
     .input-area {
-        padding: 0.5rem; /* Less padding inside the text box container */
+        padding: 0.5rem;
     }
-
     .query-textarea {
-        font-size: 1rem; /* Ensure text area font is a good size */
+        font-size: 1rem;
     }
 }
