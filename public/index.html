@@ -4,21 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edith UI - Styled</title>
-    <!-- Tailwind CSS for layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Courier+New&display=swap" rel="stylesheet">
-    <!-- Favicon -->
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="grid-pattern"></div>
-    <div class="flex h-screen relative">
-        <!-- Sidebar -->
+    <div id="app-container" class="flex h-screen relative">
         <aside id="sidebar" class="sidebar w-64 p-4 flex-col absolute inset-y-0 left-0 transform -translate-x-full md:relative md:translate-x-0 z-30 flex">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-2">
@@ -35,12 +30,10 @@
             </button>
             
             <div id="chat-history-container" class="flex-grow overflow-y-auto pr-2">
-                <!-- Chat history links will be dynamically inserted here -->
-            </div>
+                </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 flex flex-col p-4 md:p-8 h-screen">
+        <main class="flex-1 flex flex-col p-4 md:p-8">
             <header class="flex items-center justify-between w-full mb-4">
                 <button id="open-sidebar-btn" class="p-2 rounded-full btn-icon md:hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -53,16 +46,13 @@
             </header>
 
             <div class="flex-1 flex flex-col w-full max-w-3xl mx-auto overflow-y-auto">
-                <!-- This container will hold the welcome message or the chat responses -->
                 <div id="chat-container" class="flex-1 flex flex-col justify-start">
                     <div id="welcome-message" class="text-center my-auto">
                         <h2 class="main-heading mb-12">Hello, Sakshi</h2>
                     </div>
-                    <!-- Responses will be injected here -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Form is now at the bottom -->
             <form id="query-form" class="w-full max-w-3xl mx-auto mt-4">
                 <div class="input-area p-2 flex items-center gap-2 shadow-lg">
                     <textarea id="query-input" rows="1" placeholder="Ask Edith..." class="query-textarea flex-1 bg-transparent focus:outline-none resize-none p-2"></textarea>
@@ -74,7 +64,6 @@
         </main>
     </div>
 
-    <!-- About Us Modal -->
     <div id="about-us-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
         <div class="modal-content w-full max-w-2xl max-h-[90vh] flex flex-col">
             <div class="modal-header p-6 flex items-center justify-between">
@@ -104,7 +93,6 @@
         </div>
     </div>
 
-    <!-- Custom JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
