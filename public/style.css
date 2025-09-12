@@ -144,3 +144,53 @@ body {
 .error-header { color: #e53e3e; }
 .error-content { background: rgba(255, 99, 71, 0.1); border-left-color: #e53e3e; color: #c53030; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+
+/* =========================================== */
+/* Responsive Styles for Mobile Phones 📱    */
+/* =========================================== */
+/* This code applies to screens 768px wide or smaller */
+@media (max-width: 768px) {
+
+    /* 1. Make the main heading smaller to fit better on narrow screens */
+    .main-heading {
+        font-size: 1.75rem; /* Reduced from 2.5em */
+        /* Tailwind's `mb-12` is 3rem, which is a lot of space on mobile */
+        margin-bottom: 2rem;
+    }
+
+    /* 2. Adjust padding in the main content area */
+    /* Your HTML already uses md:p-8, so this targets the smaller p-4 */
+    main.p-4 {
+        padding: 1rem; /* Consistent 1rem padding */
+    }
+
+    /* 3. Make the "About Us" modal fit the mobile screen properly */
+    .modal-content {
+        /* Use 95% of the viewport width to ensure it never overflows */
+        width: 95vw;
+        /* Remove the large max-width that was set for desktops */
+        max-width: 100%;
+    }
+
+    .modal-header, .modal-body {
+        padding: 1rem; /* Reduce padding inside the modal */
+    }
+
+    .modal-body {
+        font-size: 0.9rem; /* Make modal text slightly smaller for readability */
+    }
+
+    /* 4. Tweak the text input form for a better mobile feel */
+    #query-form {
+        margin-top: 0.5rem; /* Reduce top margin */
+    }
+
+    .input-area {
+        padding: 0.5rem; /* Less padding inside the text box container */
+    }
+
+    .query-textarea {
+        font-size: 1rem; /* Ensure text area font is a good size */
+    }
+}
