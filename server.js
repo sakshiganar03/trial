@@ -1,29 +1,23 @@
-// FILE: server.js
-// This is your backend. It creates a server that serves your website
-// and provides a secure proxy to the Gemini API.
-
+// FILE: server.js (Corrected with Conversation History)
 import express from 'express';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
 
-// Load environment variables from .env file
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware to serve static files (HTML, CSS, JS) from the 'public' directory
 app.use(express.static('public'));
-// Middleware to parse JSON bodies from incoming requests
 app.use(express.json());
 
 // ** THE SYSTEM PROMPT HAS BEEN UPDATED HERE **
-const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your responses must be professional, concise, and optimized for small screen display. Provide only the most important information in exactly 60 words or less. Be direct, helpful, and maintain a professional tone suitable for a high-tech assistant.";
+const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your responses must be professional, concise, and optimized for a small screen, strictly adhering to a 60-word limit. Prioritize factual accuracy and draw from a comprehensive knowledge base covering geography, history, and technical topics. Be direct, helpful, and maintain a professional tone, providing correct and relevant information for all types of questions, both general and technical.";
 
-// API Proxy Endpoint
-// The frontend will send requests to '/api/gemini' instead of the actual Gemini API.
 app.post('/api/gemini', async (req, res) => {
-  const { query } = req.body;
+  // --- CONVERSATION HISTORY LOGIC ---
+  // We now expect 'query' for the new question and 'history' for past conversation
+  const { query, history } = req.body;
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
   if (!geminiApiKey) {
@@ -35,10 +29,16 @@ app.post('/api/gemini', async (req, res) => {
   }
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-  const enhancedPrompt = `${SYSTEM_PROMPT}\n\nUser Query: ${query}`;
+
+  // Format the history for the Gemini API. It expects a specific structure.
+  // The 'history' from your frontend should be an array of {role: 'user'/'model', parts: [{text: ...}]}
+  const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
 
   const payload = {
-    contents: [{ parts: [{ text: enhancedPrompt }] }],
+    contents: contents, // Send the full conversation history
+    systemInstruction: { // The correct way to send a system prompt for conversations
+      parts: [{ text: SYSTEM_PROMPT }]
+    },
     generationConfig: {
       maxOutputTokens: 200, // Adjusted for the shorter response length
       temperature: 0.7,
@@ -72,13 +72,10 @@ app.post('/api/gemini', async (req, res) => {
   }
 });
 
-// Add a 404 Not Found handler for any routes that don't match.
-// This should be placed after all your other routes.
 app.use((req, res, next) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`EDITH server running at http://localhost:${port}`);
 });
