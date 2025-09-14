@@ -1,41 +1,42 @@
+### 2. `style.css` (Updated)
+This file has all the fixes for the layout, spacing, text indentation, and the new font.
+
+```css:Final UI Styles and Fixes:style.css
 /* --- Universal Box Sizing & Base Styling --- */
 * {
     box-sizing: border-box;
 }
 
 body {
-    font-family: 'Courier New', monospace;
+    /* CHANGED: Font updated to Inter */
+    font-family: 'Inter', sans-serif;
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
     color: #2D3748;
     min-height: 100vh;
-    overflow-x: hidden; /* Prevents horizontal scroll */
+    overflow: hidden; /* Prevents scrolling on the body */
     animation: backgroundShift 10s ease-in-out infinite alternate;
 }
 
 /* --- FIX: Main App Container Layout --- */
-/* This container should wrap your entire app in the HTML (header, main, footer/form) */
 #app-container {
     height: 100vh;   /* Fallback for older browsers */
     height: 100dvh;  /* Dynamic viewport height, fixes mobile keyboard issues */
     width: 100%;
     display: flex;
-    flex-direction: column; /* This is the key: stacks children vertically */
+    /* This rule is now in your HTML via Tailwind's 'flex-col' */
 }
 
 /* --- FIX: Make the Main Chat Area Grow --- */
-/* Your <main> element, which holds the chat messages, needs to expand */
 main {
     flex-grow: 1; /* This makes the main area take all available vertical space */
-    overflow-y: auto; /* Allows the chat messages to scroll */
-    padding: 1rem; /* Add some padding so content isn't at the edges */
+    overflow-y: auto; /* Allows only the chat messages to scroll */
+    /* Padding is handled by Tailwind classes in your HTML ('p-4', 'md:p-8') */
 }
 
 /* --- FIX: Anchor the Input Form to the Bottom --- */
-/* The container for your form (<form> or <footer>) should not shrink */
-#query-form-container {
+/* This targets the <form> element directly or a wrapper if you have one */
+#query-form {
     flex-shrink: 0; /* Prevents this from shrinking */
-    padding: 1rem; /* Adds balanced space around the input area */
-    padding-top: 0;
 }
 
 
@@ -91,7 +92,8 @@ main {
     box-shadow: 0 0 15px rgba(197, 186, 255, 0.5);
 }
 .query-textarea {
-    font-family: 'Courier New', monospace;
+    /* CHANGED: Font updated to Inter */
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     color: #2D3748;
     background: transparent;
@@ -101,7 +103,8 @@ main {
 }
 
 .btn {
-    font-family: 'Courier New', monospace;
+    /* CHANGED: Font updated to Inter */
+    font-family: 'Inter', sans-serif;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -163,10 +166,13 @@ main {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.3; transform: scale(0.8); }
 }
+
 .response-content {
     background: rgba(196, 217, 255, 0.1); border-left: 3px solid #C5BAFF;
     padding: 15px; border-radius: 8px; color: #2D3748; font-size: 16px;
-    line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;
+    line-height: 1.6;
+    /* FIX: This property, which caused the extra indentation, has been removed. */
+    word-wrap: break-word;
 }
 .error-header { color: #e53e3e; }
 .error-content { background: rgba(255, 99, 71, 0.1); border-left-color: #e53e3e; color: #c53030; }
@@ -176,24 +182,14 @@ main {
 /* Responsive Styles for Mobile Phones 📱    */
 /* =========================================== */
 @media (max-width: 768px) {
-
     body {
         -webkit-text-size-adjust: 100%;
     }
-
-    main.p-4, #query-form-container {
-        padding: 0.75rem; /* 12px */
-    }
-
-    .w-full.max-w-3xl {
-        max-width: 100%;
-    }
-
+    /* Padding is now handled by the #app-container > main rule */
     .main-heading {
         font-size: 1.75rem; /* 28px */
         margin-bottom: 2rem;
     }
-
     .modal-content {
         width: 95vw;
         max-width: 100%;
@@ -204,7 +200,6 @@ main {
     .modal-body {
         font-size: 0.9rem;
     }
-
     .input-area {
         padding: 0.5rem;
     }
@@ -212,4 +207,4 @@ main {
         font-size: 1rem;
     }
 }
-
+```eof
