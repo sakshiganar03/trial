@@ -1,4 +1,4 @@
-// FILE: script.js (Corrected)
+// FILE: public/script.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
     const sidebar = document.getElementById('sidebar');
@@ -18,7 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeMessage = document.getElementById('welcome-message');
 
     // --- State Management ---
-    let chatHistory = []; 
+    let chatHistoryList = []; // For the sidebar list of chats
+    // --- CHANGED ---
+    // This new array will store the messages for the CURRENT active conversation
+    let currentConversation = []; 
 
     // --- Icon Definitions ---
     const iconSend = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
@@ -28,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
     submitBtn.insertAdjacentHTML('afterbegin', iconSend);
     btnText.textContent = 'Send';
-
 
     // --- Sidebar Toggle Functionality ---
     const openSidebar = () => sidebar.classList.remove('-translate-x-full');
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Chat History Functionality ---
     const renderChatHistory = () => {
         chatHistoryContainer.innerHTML = ''; // Clear existing history
-        chatHistory.forEach(chat => {
+        chatHistoryList.forEach(chat => {
             const chatLink = document.createElement('a');
             chatLink.href = '#';
             chatLink.className = 'chat-history-link';
@@ -64,13 +66,19 @@ document.addEventListener('DOMContentLoaded', () => {
             id: Date.now(),
             title: `Chat ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`
         };
-        chatHistory.unshift(newChat);
+        chatHistoryList.unshift(newChat);
         renderChatHistory();
+        
+        // --- CHANGED ---
+        // Clear the active conversation's memory
+        currentConversation = []; 
         
         // Clear the main chat window and show welcome message
         chatContainer.innerHTML = '';
-        chatContainer.appendChild(welcomeMessage);
-        welcomeMessage.style.display = 'block';
+        if (welcomeMessage) {
+            chatContainer.appendChild(welcomeMessage);
+            welcomeMessage.style.display = 'block';
+        }
         queryInput.value = '';
     });
     
@@ -92,6 +100,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>`;
         chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
+
+        // --- ADDED ---
+        // Add the user's message to our conversation history state
+        currentConversation.push({ role: 'user', parts: [{ text: query }] });
+        
         chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
         queryInput.value = ''; // Clear input
 
@@ -118,22 +131,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`${window.location.origin}/api/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query }),
+                // --- CHANGED ---
+                // Send the query AND the conversation history
+                body: JSON.stringify({
+                    query: query,
+                    // Send history *before* this user message for context
+                    history: currentConversation.slice(0, -1)
+                }),
             });
 
             const responseElement = document.getElementById(responseId);
 
-            // ** THE FIX IS HERE **
-            // First, check if the HTTP response is successful.
             if (!res.ok) {
-                // If not, try to parse the error message our server sent.
                 const errorData = await res.json();
-                // Then, throw an error to be caught by the 'catch' block.
                 throw new Error(errorData.error || 'An unknown error occurred.');
             }
             
-            // If we get here, the response was successful, so we can safely parse the JSON.
             const data = await res.json();
+
+            // --- ADDED ---
+            // Add the model's response to our conversation history state
+            currentConversation.push({ role: 'model', parts: [{ text: data.response }] });
             
             // --- Display successful response ---
             responseElement.innerHTML = `
@@ -168,6 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         queryInput.style.height = (queryInput.scrollHeight) + 'px';
     });
 
-    // Initial render of chat history
+    // Initial render of chat history sidebar
     renderChatHistory();
 });
