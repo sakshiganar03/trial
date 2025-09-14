@@ -3,12 +3,6 @@
     box-sizing: border-box;
 }
 
-/* This is the new rule that fixes the keyboard issue */
-#app-container {
-    height: 100vh; /* Fallback for older browsers */
-    height: 100dvh; /* Dynamic viewport height, the modern fix */
-}
-
 body {
     font-family: 'Courier New', monospace;
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
@@ -17,6 +11,34 @@ body {
     overflow-x: hidden; /* Prevents horizontal scroll */
     animation: backgroundShift 10s ease-in-out infinite alternate;
 }
+
+/* --- FIX: Main App Container Layout --- */
+/* This container should wrap your entire app in the HTML (header, main, footer/form) */
+#app-container {
+    height: 100vh;   /* Fallback for older browsers */
+    height: 100dvh;  /* Dynamic viewport height, fixes mobile keyboard issues */
+    width: 100%;
+    display: flex;
+    flex-direction: column; /* This is the key: stacks children vertically */
+}
+
+/* --- FIX: Make the Main Chat Area Grow --- */
+/* Your <main> element, which holds the chat messages, needs to expand */
+main {
+    flex-grow: 1; /* This makes the main area take all available vertical space */
+    overflow-y: auto; /* Allows the chat messages to scroll */
+    padding: 1rem; /* Add some padding so content isn't at the edges */
+}
+
+/* --- FIX: Anchor the Input Form to the Bottom --- */
+/* The container for your form (<form> or <footer>) should not shrink */
+#query-form-container {
+    flex-shrink: 0; /* Prevents this from shrinking */
+    padding: 1rem; /* Adds balanced space around the input area */
+    padding-top: 0;
+}
+
+
 @keyframes backgroundShift {
     0% { background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF); }
     100% { background: linear-gradient(45deg, #C4D9FF, #FBFBFB, #E8F9FF); }
@@ -62,6 +84,7 @@ body {
     border: 2px solid #C4D9FF;
     border-radius: 8px;
     transition: all 0.3s ease;
+    width: 100%; /* Ensure it fills the padded container */
 }
 .input-area:focus-within {
     border-color: #C5BAFF;
@@ -154,32 +177,23 @@ body {
 /* =========================================== */
 @media (max-width: 768px) {
 
-    /* --- Body & Main Layout --- */
     body {
-        /* Prevents iOS from zooming in on text inputs when changing orientation */
         -webkit-text-size-adjust: 100%;
     }
 
-    main.p-4 {
-        /* Ensure padding is consistent and not too large */
+    main.p-4, #query-form-container {
         padding: 0.75rem; /* 12px */
     }
 
-    /* --- Central Content Column --- */
-    /* This targets the containers with max-w-3xl in your HTML */
     .w-full.max-w-3xl {
-        /* **THE KEY FIX**: This overrides Tailwind's max-width on mobile, */
-        /* forcing the container to fit the screen perfectly. */
         max-width: 100%;
     }
 
-    /* --- Typography --- */
     .main-heading {
         font-size: 1.75rem; /* 28px */
         margin-bottom: 2rem;
     }
 
-    /* --- Modal --- */
     .modal-content {
         width: 95vw;
         max-width: 100%;
@@ -191,10 +205,6 @@ body {
         font-size: 0.9rem;
     }
 
-    /* --- Form Input --- */
-    #query-form {
-        margin-top: 0.5rem;
-    }
     .input-area {
         padding: 0.5rem;
     }
@@ -202,3 +212,4 @@ body {
         font-size: 1rem;
     }
 }
+
