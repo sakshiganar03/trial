@@ -1,4 +1,4 @@
-// FILE: server.js (Corrected with Conversation History)
+// FILE: server.js
 import express from 'express';
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
@@ -11,12 +11,10 @@ const port = process.env.PORT || 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
-// ** THE SYSTEM PROMPT HAS BEEN UPDATED HERE **
-const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your responses must be professional, concise, and optimized for a small screen, strictly adhering to a 60-word limit. Prioritize factual accuracy and draw from a comprehensive knowledge base covering geography, history, and technical topics. Be direct, helpful, and maintain a professional tone, providing correct and relevant information for all types of questions, both general and technical.";
+// ** THE SYSTEM PROMPT HAS BEEN UPDATED WITH FULL CAPABILITIES **
+const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your primary directive is factual accuracy across a comprehensive knowledge base, including mathematics, general topics, and language translation. Provide precise mathematical formulas, correct translations, and reliable information on all subjects. Responses must be professional, concise, and optimized for a small screen, strictly adhering to a 60-word limit. Prioritize core information to meet this constraint. If a fact cannot be confirmed with high certainty, state that you cannot verify the detail rather than providing an incorrect answer.";
 
 app.post('/api/gemini', async (req, res) => {
-  // --- CONVERSATION HISTORY LOGIC ---
-  // We now expect 'query' for the new question and 'history' for past conversation
   const { query, history } = req.body;
   const geminiApiKey = process.env.GEMINI_API_KEY;
 
@@ -30,17 +28,15 @@ app.post('/api/gemini', async (req, res) => {
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
 
-  // Format the history for the Gemini API. It expects a specific structure.
-  // The 'history' from your frontend should be an array of {role: 'user'/'model', parts: [{text: ...}]}
   const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
 
   const payload = {
-    contents: contents, // Send the full conversation history
-    systemInstruction: { // The correct way to send a system prompt for conversations
+    contents: contents,
+    systemInstruction: {
       parts: [{ text: SYSTEM_PROMPT }]
     },
     generationConfig: {
-      maxOutputTokens: 200, // Adjusted for the shorter response length
+      maxOutputTokens: 200,
       temperature: 0.7,
     },
   };
@@ -64,7 +60,7 @@ app.post('/api/gemini', async (req, res) => {
     if (text) {
       res.json({ response: text });
     } else {
-      res.json({ response: "I received a response, but it contained no content. Please try rephrasing your query." });
+      res.json({ response: "I received a response, but it contained no content." });
     }
   } catch (error) {
     console.error('Proxy Error:', error);
