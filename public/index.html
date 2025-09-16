@@ -22,12 +22,12 @@
                     <h1 class="text-xl font-bold text-[#5A67D8]">Edith</h1>
                 </div>
                 <button id="close-sidebar-btn" class="p-2 rounded-full btn-icon md:hidden">
-                    <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
             <button id="new-chat-btn" class="btn btn-primary flex items-center gap-3 w-full text-left py-2 px-4 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 New chat
             </button>
             
@@ -38,7 +38,7 @@
         <main class="flex-1 flex flex-col p-4 md:p-8">
             <header class="flex items-center justify-between w-full mb-4">
                 <button id="open-sidebar-btn" class="p-2 rounded-full btn-icon md:hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
                 </button>
                 <div class="flex-1"></div>
                 <div class="flex items-center gap-4">
@@ -48,14 +48,11 @@
             </header>
 
             <div class="flex-1 flex flex-col w-full max-w-3xl mx-auto overflow-y-auto">
-                <!-- CHANGED: 'justify-start' is now 'justify-center' -->
                 <div id="chat-container" class="flex-1 flex flex-col justify-center">
-                    <!-- CHANGED: 'my-auto' has been removed -->
                     <div id="welcome-message" class="text-center">
                         <h2 class="main-heading mb-12">Hello, Sakshi</h2>
                     </div>
-                    <!-- Chat messages will be rendered here by script.js -->
-                </div>
+                    </div>
             </div>
 
             <form id="query-form" class="w-full max-w-3xl mx-auto mt-4">
@@ -74,11 +71,26 @@
             <div class="modal-header p-6 flex items-center justify-between">
                 <h3 class="text-xl font-semibold">About Edith</h3>
                 <button id="close-modal-btn" class="p-2 rounded-full btn-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
             <div class="modal-body p-6 space-y-6 overflow-y-auto text-sm">
-                 <!-- Modal content here -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-2">Specifications</h4>
+                    <p>Edith is a next-generation AI assistant built on a powerful, multimodal large language model. It's designed for seamless integration and high-performance data processing, capable of handling complex queries with remarkable speed and accuracy.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-2">Features</h4>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Advanced natural language understanding and generation.</li>
+                        <li>Multilingual support for global accessibility.</li>
+                        <li>Real-time data analysis and visualization tools.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-2">Privacy</h4>
+                    <p>We are committed to protecting your privacy. Conversations are anonymized and not used for training purposes without explicit consent. You have full control over your data and chat history, with options to delete it at any time.</p>
+                </div>
             </div>
         </div>
     </div>
