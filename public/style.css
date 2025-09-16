@@ -1,6 +1,5 @@
 ### 2. `style.css` (Updated)
-
-This file contains all the necessary fixes. Your Tailwind classes are already handling the main layout, so this CSS just provides the crucial overrides and adjustments.
+This file has all the fixes for the layout, spacing, text indentation, and the new font.
 
 ```css:Final UI Styles and Fixes:style.css
 /* --- Universal Box Sizing & Base Styling --- */
@@ -14,17 +13,32 @@ body {
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
     color: #2D3748;
     min-height: 100vh;
-    overflow: hidden; /* Prevent scrolling on the body */
+    overflow: hidden; /* Prevents scrolling on the body */
     animation: backgroundShift 10s ease-in-out infinite alternate;
 }
 
 /* --- FIX: Main App Container Layout --- */
-/* This rule overrides Tailwind's h-screen (100vh) to use the dynamic
-   viewport height, which correctly handles mobile keyboards. */
 #app-container {
     height: 100vh;   /* Fallback for older browsers */
-    height: 100dvh;  /* The modern fix for mobile keyboard layout issues */
+    height: 100dvh;  /* Dynamic viewport height, fixes mobile keyboard issues */
+    width: 100%;
+    display: flex;
+    /* This rule is now in your HTML via Tailwind's 'flex-col' */
 }
+
+/* --- FIX: Make the Main Chat Area Grow --- */
+main {
+    flex-grow: 1; /* This makes the main area take all available vertical space */
+    overflow-y: auto; /* Allows only the chat messages to scroll */
+    /* Padding is handled by Tailwind classes in your HTML ('p-4', 'md:p-8') */
+}
+
+/* --- FIX: Anchor the Input Form to the Bottom --- */
+/* This targets the <form> element directly or a wrapper if you have one */
+#query-form {
+    flex-shrink: 0; /* Prevents this from shrinking */
+}
+
 
 @keyframes backgroundShift {
     0% { background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF); }
@@ -71,7 +85,7 @@ body {
     border: 2px solid #C4D9FF;
     border-radius: 8px;
     transition: all 0.3s ease;
-    width: 100%;
+    width: 100%; /* Ensure it fills the padded container */
 }
 .input-area:focus-within {
     border-color: #C5BAFF;
@@ -101,9 +115,9 @@ body {
 .btn-primary {
     background: linear-gradient(45deg, #C5BAFF, #5A67D8);
     color: white;
-    border: none;
 }
 .btn-primary:hover {
+    background: linear-gradient(45deg, #5A67D8, #C5BAFF);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(197, 186, 255, 0.4);
 }
@@ -157,7 +171,7 @@ body {
     background: rgba(196, 217, 255, 0.1); border-left: 3px solid #C5BAFF;
     padding: 15px; border-radius: 8px; color: #2D3748; font-size: 16px;
     line-height: 1.6;
-    /* FIX: The property causing extra indentation has been removed. */
+    /* FIX: This property, which caused the extra indentation, has been removed. */
     word-wrap: break-word;
 }
 .error-header { color: #e53e3e; }
@@ -171,6 +185,7 @@ body {
     body {
         -webkit-text-size-adjust: 100%;
     }
+    /* Padding is now handled by the #app-container > main rule */
     .main-heading {
         font-size: 1.75rem; /* 28px */
         margin-bottom: 2rem;
