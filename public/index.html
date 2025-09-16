@@ -22,7 +22,7 @@
                     <h1 class="text-xl font-bold text-[#5A67D8]">Edith</h1>
                 </div>
                 <button id="close-sidebar-btn" class="p-2 rounded-full btn-icon md:hidden">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    <svg xmlns="http://www.w.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="#5A67D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
 
@@ -48,10 +48,13 @@
             </header>
 
             <div class="flex-1 flex flex-col w-full max-w-3xl mx-auto overflow-y-auto">
-                <div id="chat-container" class="flex-1 flex flex-col justify-start">
-                    <div id="welcome-message" class="text-center my-auto">
+                <!-- CHANGED: 'justify-start' is now 'justify-center' -->
+                <div id="chat-container" class="flex-1 flex flex-col justify-center">
+                    <!-- CHANGED: 'my-auto' has been removed -->
+                    <div id="welcome-message" class="text-center">
                         <h2 class="main-heading mb-12">Hello, Sakshi</h2>
                     </div>
+                    <!-- Chat messages will be rendered here by script.js -->
                 </div>
             </div>
 
@@ -75,11 +78,11 @@
                 </button>
             </div>
             <div class="modal-body p-6 space-y-6 overflow-y-auto text-sm">
-                </div>
+                 <!-- Modal content here -->
+            </div>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-```eof
