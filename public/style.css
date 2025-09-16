@@ -8,21 +8,29 @@ This file has all the fixes for the layout, spacing, text indentation, and the n
 }
 
 body {
-    /* Font is set to Inter as previously requested */
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', sans-serif; /* Using the modern font as previously decided */
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
     color: #2D3748;
     min-height: 100vh;
-    overflow: hidden; /* Prevents scrolling on the body */
+    overflow: hidden; /* Prevent scrolling on the body itself */
     animation: backgroundShift 10s ease-in-out infinite alternate;
 }
 
 /* --- THE KEY FIX FOR THE KEYBOARD ISSUE --- */
-/* This rule overrides Tailwind's h-screen (100vh) to use the dynamic
-   viewport height, which correctly handles the mobile keyboard. */
+/* This rule correctly handles the shrinking viewport when the keyboard appears. */
 #app-container {
     height: 100vh;   /* Fallback for older browsers */
     height: 100dvh;  /* The modern fix that adapts to the keyboard */
+}
+
+/* This ensures the <main> tag properly manages the vertical layout of its children */
+main.flex-col {
+    overflow: hidden; /* Prevents the main container itself from scrolling */
+}
+
+/* This targets the scrolling chat area and makes IT the only part that shrinks and scrolls */
+main .overflow-y-auto {
+    flex-grow: 1;
 }
 
 
@@ -45,7 +53,7 @@ body {
     100% { transform: translate(50px, 50px); }
 }
 
-/* --- Component Styling (Your code is preserved below) --- */
+/* --- Component Styling (Sidebar, Buttons, etc.) --- */
 .sidebar {
     background: rgba(248, 251, 251, 0.9);
     border-right: 2px solid #C5BAFF;
@@ -155,7 +163,6 @@ body {
     background: rgba(196, 217, 255, 0.1); border-left: 3px solid #C5BAFF;
     padding: 15px; border-radius: 8px; color: #2D3748; font-size: 16px;
     line-height: 1.6;
-    /* This FIX prevents the extra text indentation you pointed out */
     word-wrap: break-word;
 }
 .error-header { color: #e53e3e; }
