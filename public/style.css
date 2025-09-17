@@ -1,36 +1,38 @@
-### 2. `style.css` (Updated)
-This file has all the fixes for the layout, spacing, text indentation, and the new font.
-
-```css:Final UI Styles and Fixes:style.css
 /* --- Universal Box Sizing & Base Styling --- */
 * {
     box-sizing: border-box;
 }
 
 body {
-    font-family: 'Inter', sans-serif; /* Using the modern font as previously decided */
+    /* CHANGED: Font updated to Inter */
+    font-family: 'Inter', sans-serif;
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
     color: #2D3748;
     min-height: 100vh;
-    overflow: hidden; /* Prevent scrolling on the body itself */
+    overflow: hidden; /* Prevents scrolling on the body */
     animation: backgroundShift 10s ease-in-out infinite alternate;
 }
 
 /* --- THE KEY FIX FOR THE KEYBOARD ISSUE --- */
-/* This rule correctly handles the shrinking viewport when the keyboard appears. */
+/* This rule overrides Tailwind's h-screen (100vh) to use the dynamic
+   viewport height, which correctly handles the mobile keyboard. */
 #app-container {
-    height: 100vh;   /* Fallback for older browsers */
+    height: 100vh;   /* A fallback for older browsers */
     height: 100dvh;  /* The modern fix that adapts to the keyboard */
 }
 
-/* This ensures the <main> tag properly manages the vertical layout of its children */
-main.flex-col {
-    overflow: hidden; /* Prevents the main container itself from scrolling */
+/* These rules from your code are good but are mostly handled by Tailwind classes in your HTML. */
+/* I've kept them for clarity and to ensure the layout is robust. */
+main {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
 }
 
-/* This targets the scrolling chat area and makes IT the only part that shrinks and scrolls */
-main .overflow-y-auto {
-    flex-grow: 1;
+#query-form-container {
+    flex-shrink: 0;
+    padding: 1rem;
+    padding-top: 0;
 }
 
 
@@ -79,13 +81,14 @@ main .overflow-y-auto {
     border: 2px solid #C4D9FF;
     border-radius: 8px;
     transition: all 0.3s ease;
-    width: 100%;
+    width: 100%; /* Ensure it fills the padded container */
 }
 .input-area:focus-within {
     border-color: #C5BAFF;
     box-shadow: 0 0 15px rgba(197, 186, 255, 0.5);
 }
 .query-textarea {
+    /* CHANGED: Font updated to Inter */
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     color: #2D3748;
@@ -96,6 +99,7 @@ main .overflow-y-auto {
 }
 
 .btn {
+    /* CHANGED: Font updated to Inter */
     font-family: 'Inter', sans-serif;
     font-weight: bold;
     text-transform: uppercase;
@@ -163,6 +167,7 @@ main .overflow-y-auto {
     background: rgba(196, 217, 255, 0.1); border-left: 3px solid #C5BAFF;
     padding: 15px; border-radius: 8px; color: #2D3748; font-size: 16px;
     line-height: 1.6;
+    /* FIX: This property, which caused the extra indentation, has been removed. */
     word-wrap: break-word;
 }
 .error-header { color: #e53e3e; }
