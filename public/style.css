@@ -18,7 +18,7 @@ body {
    viewport height, which correctly handles the mobile keyboard. */
 #app-container {
     height: 100vh;   /* A fallback for older browsers */
-    height: 70dvh;  /* The modern fix that adapts to the keyboard */
+    height: 100dvh;  /* The modern fix that adapts to the keyboard */
 }
 
 /* These rules from your code are good but are mostly handled by Tailwind classes in your HTML. */
