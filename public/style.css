@@ -17,8 +17,6 @@ body {
 /* This rule overrides Tailwind's h-screen (100vh) to use the dynamic
    viewport height, which correctly handles the mobile keyboard. */
 #app-container {
-    display: flex;
-    flex-direction: column;
     height: 100vh;   /* A fallback for older browsers */
     height: 100dvh;  /* The modern fix that adapts to the keyboard */
 }
