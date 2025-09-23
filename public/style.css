@@ -202,3 +202,112 @@ main {
         font-size: 1rem;
     }
 }
+
+/* --- NEW: Settings & Profile Page Styles --- */
+.page {
+    background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: rgba(248, 251, 251, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #C4D9FF;
+    flex-shrink: 0;
+}
+
+.page-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    background-color: #5A67D8;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid #C5BAFF;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #2D3748;
+}
+
+.settings-group {
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #C4D9FF;
+    overflow: hidden;
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    color: #2D3748;
+    text-decoration: none;
+    border-bottom: 1px solid #E8F9FF;
+}
+
+.settings-group .settings-item:last-child {
+    border-bottom: none;
+}
+
+.settings-item span {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.chevron {
+    width: 20px;
+    height: 20px;
+    color: #A0AEC0;
+}
+
+.settings-input, .settings-select {
+    border: none;
+    background: transparent;
+    text-align: right;
+    font-size: 1rem;
+    color: #5A67D8;
+    font-weight: 500;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Styling for the dropdown arrow */
+.settings-select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%22%20fill%3D%22none%22%20stroke%3D%22%23A0AEC0%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C/polyline%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 0px center;
+    padding-right: 20px;
+}
