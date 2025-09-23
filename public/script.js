@@ -44,8 +44,51 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aboutUsModal) aboutUsModal.addEventListener('click', (e) => {
         if (e.target === aboutUsModal) closeModal();
     });
+
+    // --- NEW: Settings and Profile Page Logic ---
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsPage = document.getElementById('settings-page');
+    const settingsBackBtn = document.getElementById('settings-back-btn');
+    const editProfilePage = document.getElementById('edit-profile-page');
+    const profileBackBtn = document.getElementById('profile-back-btn');
+    const editProfileLink = document.getElementById('edit-profile-link');
+    const aboutLink = document.getElementById('about-link');
+
+    const showPage = (page) => {
+        if (page) page.classList.remove('translate-x-full');
+    };
+    const hidePage = (page) => {
+        if (page) page.classList.add('translate-x-full');
+    };
+
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => showPage(settingsPage));
+    }
+    if (settingsBackBtn) {
+        settingsBackBtn.addEventListener('click', () => {
+            hidePage(settingsPage);
+            hidePage(editProfilePage); // Also hide profile page if it was open
+        });
+    }
+    if (editProfileLink) {
+        editProfileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            showPage(editProfilePage);
+        });
+    }
+    if (profileBackBtn) {
+        profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
+    }
     
-    // --- NEW: Chat History Logic ---
+    // Make the "About" link in the new settings page open the existing "About Us" modal
+    if (aboutLink) {
+        aboutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal();
+        });
+    }
+    
+    // --- Chat History Logic ---
 
     // Load chats from browser's local storage
     const loadChatsFromStorage = () => {
@@ -67,11 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const chatLink = document.createElement('a');
             chatLink.href = '#';
             chatLink.className = 'chat-history-link';
-            // Truncate long titles for display
             chatLink.textContent = chat.title.length > 25 ? chat.title.substring(0, 22) + '...' : chat.title;
             chatLink.dataset.id = chat.id;
 
-            // Add a click event to load the chat when its link is clicked
             chatLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 loadChat(chat.id);
@@ -87,16 +128,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!chat) return;
 
         currentChatId = id;
-        chatContainer.innerHTML = ''; // Clear the window
+        chatContainer.innerHTML = '';
         welcomeMessage.style.display = 'none';
 
-        // Re-render all messages from the selected chat
         chat.messages.forEach(message => {
             const html = createMessageHtml(message.role, message.parts[0].text);
             chatContainer.insertAdjacentHTML('beforeend', html);
         });
         chatContainer.scrollTop = chatContainer.scrollHeight;
-        if(window.innerWidth < 768) closeSidebar(); // Close sidebar on mobile after selection
+        if(window.innerWidth < 768) closeSidebar();
     };
 
     // Start a new chat session
