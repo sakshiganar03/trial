@@ -43,7 +43,7 @@
                 <div class="flex-1"></div>
                 <div class="flex items-center gap-4">
                     <button id="about-us-btn" class="btn btn-secondary text-sm px-4 py-2">About Us</button>
-                    <button class="w-10 h-10 bg-[#5A67D8] rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-[#C5BAFF]">S</button>
+                    <button id="settings-btn" class="w-10 h-10 bg-[#5A67D8] rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-[#C5BAFF]">S</button>
                 </div>
             </header>
 
@@ -52,7 +52,7 @@
                     <div id="welcome-message" class="text-center">
                         <h2 class="main-heading mb-12">Hello, Sakshi</h2>
                     </div>
-                    </div>
+                </div>
             </div>
 
             <form id="query-form" class="w-full max-w-3xl mx-auto mt-4">
@@ -75,26 +75,61 @@
                 </button>
             </div>
             <div class="modal-body p-6 space-y-6 overflow-y-auto text-sm">
-                <div>
-                    <h4 class="text-lg font-semibold mb-2">Specifications</h4>
-                    <p>Edith is a next-generation AI assistant built on a powerful, multimodal large language model. It's designed for seamless integration and high-performance data processing, capable of handling complex queries with remarkable speed and accuracy.</p>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-2">Features</h4>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li>Advanced natural language understanding and generation.</li>
-                        <li>Multilingual support for global accessibility.</li>
-                        <li>Real-time data analysis and visualization tools.</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-2">Privacy</h4>
-                    <p>We are committed to protecting your privacy. Conversations are anonymized and not used for training purposes without explicit consent. You have full control over your data and chat history, with options to delete it at any time.</p>
-                </div>
+        </div>
+    </div>
+    
+    <div id="settings-page" class="page fixed inset-0 z-40 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <header class="page-header">
+            <button id="settings-back-btn" class="p-2 rounded-full btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <h2 class="text-xl font-bold">Settings</h2>
+            <div class="w-10"></div> </header>
+        <div class="page-content">
+            <div class="profile-header">
+                <div class="profile-avatar">S</div>
+                <div class="profile-name">Sakshi</div>
+            </div>
+            <div class="settings-group">
+                <a href="#" class="settings-item"><span>My Device</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+                <a href="#" class="settings-item"><span>General</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+                <a href="#" id="about-link" class="settings-item"><span>About</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+            </div>
+            <div class="settings-group">
+                 <a href="#" id="edit-profile-link" class="settings-item"><span>Edit Profile</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
             </div>
         </div>
     </div>
 
-     <script src="script.js"></script> 
+    <div id="edit-profile-page" class="page fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <header class="page-header">
+            <button id="profile-back-btn" class="p-2 rounded-full btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <h2 class="text-xl font-bold">Edit Profile</h2>
+            <div class="w-10"></div> </header>
+        <div class="page-content">
+            <div class="profile-header">
+                <div class="profile-avatar">S</div>
+                <div class="profile-name">Sakshi</div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-item"><span>User Name</span><input type="text" value="Sakshi" class="settings-input"></div>
+                <div class="settings-item"><span>Gender</span><select class="settings-select"><option>Female</option><option>Male</option><option>Other</option></select></div>
+                <div class="settings-item"><span>Phone Number</span><input type="tel" value="+91 XXXXX XXXXX" class="settings-input"></div>
+                <div class="settings-item"><span>Email</span><input type="email" value="sakshi@example.com" class="settings-input"></div>
+                <div class="settings-item"><span>Date of Birth</span><input type="date" value="2005-01-01" class="settings-input"></div>
+            </div>
+             <div class="settings-group">
+                 <a href="#" class="settings-item text-red-500"><span>Delete Account</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+            </div>
+             <div class="p-4 mt-auto">
+                <button class="btn btn-primary w-full py-3">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>    
 </body>
 </html>
