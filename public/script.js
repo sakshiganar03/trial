@@ -1,4 +1,3 @@
-// FILE: public/script.js
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
     const sidebar = document.getElementById('sidebar');
@@ -18,10 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeMessage = document.getElementById('welcome-message');
 
     // --- State Management ---
-    let chatHistoryList = []; // For the sidebar list of chats
-    // --- CHANGED ---
-    // This new array will store the messages for the CURRENT active conversation
-    let currentConversation = []; 
+    let allChats = []; // Holds all chat sessions {id, title, messages}
+    let currentChatId = null; // The ID of the currently active chat
 
     // --- Icon Definitions ---
     const iconSend = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
@@ -31,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
     submitBtn.insertAdjacentHTML('afterbegin', iconSend);
     btnText.textContent = 'Send';
+
 
     // --- Sidebar Toggle Functionality ---
     const openSidebar = () => sidebar.classList.remove('-translate-x-full');
@@ -46,69 +44,131 @@ document.addEventListener('DOMContentLoaded', () => {
     if (aboutUsModal) aboutUsModal.addEventListener('click', (e) => {
         if (e.target === aboutUsModal) closeModal();
     });
+    
+    // --- NEW: Chat History Logic ---
 
-    // --- Chat History Functionality ---
-    const renderChatHistory = () => {
-        chatHistoryContainer.innerHTML = ''; // Clear existing history
-        chatHistoryList.forEach(chat => {
+    // Load chats from browser's local storage
+    const loadChatsFromStorage = () => {
+        const storedChats = localStorage.getItem('edith_all_chats');
+        if (storedChats) {
+            allChats = JSON.parse(storedChats);
+        }
+    };
+
+    // Save chats to browser's local storage
+    const saveChatsToStorage = () => {
+        localStorage.setItem('edith_all_chats', JSON.stringify(allChats));
+    };
+
+    // Render the list of chats in the sidebar
+    const renderChatHistoryList = () => {
+        chatHistoryContainer.innerHTML = ''; // Clear existing list
+        allChats.forEach(chat => {
             const chatLink = document.createElement('a');
             chatLink.href = '#';
             chatLink.className = 'chat-history-link';
-            chatLink.textContent = chat.title;
+            // Truncate long titles for display
+            chatLink.textContent = chat.title.length > 25 ? chat.title.substring(0, 22) + '...' : chat.title;
             chatLink.dataset.id = chat.id;
+
+            // Add a click event to load the chat when its link is clicked
+            chatLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                loadChat(chat.id);
+            });
+
             chatHistoryContainer.appendChild(chatLink);
         });
     };
 
-    newChatBtn.addEventListener('click', () => {
-        const now = new Date();
-        const newChat = {
-            id: Date.now(),
-            title: `Chat ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`
-        };
-        chatHistoryList.unshift(newChat);
-        renderChatHistory();
-        
-        // --- CHANGED ---
-        // Clear the active conversation's memory
-        currentConversation = []; 
-        
-        // Clear the main chat window and show welcome message
+    // Load a specific chat into the main window
+    const loadChat = (id) => {
+        const chat = allChats.find(c => c.id === id);
+        if (!chat) return;
+
+        currentChatId = id;
+        chatContainer.innerHTML = ''; // Clear the window
+        welcomeMessage.style.display = 'none';
+
+        // Re-render all messages from the selected chat
+        chat.messages.forEach(message => {
+            const html = createMessageHtml(message.role, message.parts[0].text);
+            chatContainer.insertAdjacentHTML('beforeend', html);
+        });
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if(window.innerWidth < 768) closeSidebar(); // Close sidebar on mobile after selection
+    };
+
+    // Start a new chat session
+    const startNewChat = () => {
+        currentChatId = null;
         chatContainer.innerHTML = '';
-        if (welcomeMessage) {
-            chatContainer.appendChild(welcomeMessage);
-            welcomeMessage.style.display = 'block';
-        }
+        chatContainer.appendChild(welcomeMessage);
+        welcomeMessage.style.display = 'block';
         queryInput.value = '';
-    });
+    };
+
+    newChatBtn.addEventListener('click', startNewChat);
+
+    // Helper to create the HTML for a message bubble
+    const createMessageHtml = (role, content) => {
+        if (role === 'user') {
+            return `
+                <div class="response-section">
+                    <div class="response-header">You:</div>
+                    <div class="response-content" style="border-left-color: #5A67D8; background: rgba(90, 103, 216, 0.1);">
+                        ${content}
+                    </div>
+                </div>`;
+        } else { // model or error
+             return `
+                <div class="response-section">
+                    <div class="response-header">
+                        <div class="response-indicator" style="background: #68D391;"></div>
+                        EDITH Response:
+                    </div>
+                    <div class="response-content">
+                        ${content}
+                    </div>
+                </div>`;
+        }
+    };
     
-    // --- Core Chat Logic ---
+    // --- Core Chat Logic (Modified) ---
     queryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const query = queryInput.value.trim();
         if (!query) return;
 
-        // Hide welcome message on first query
+        // --- NEW: History Naming Logic ---
+        let isFirstMessage = false;
+        if (currentChatId === null) {
+            // This is the first message of a new chat
+            isFirstMessage = true;
+            currentChatId = Date.now();
+            const newChat = {
+                id: currentChatId,
+                title: query, // Use the first query as the title
+                messages: []
+            };
+            allChats.unshift(newChat); // Add to the beginning of our list
+        }
+
+        // Hide welcome message
         if (welcomeMessage) welcomeMessage.style.display = 'none';
 
         // Display user's query
-        const userQueryHtml = `
-            <div class="response-section">
-                <div class="response-header">You:</div>
-                <div class="response-content" style="border-left-color: #5A67D8; background: rgba(90, 103, 216, 0.1);">
-                    ${query}
-                </div>
-            </div>`;
+        const userQueryHtml = createMessageHtml('user', query);
         chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
-
-        // --- ADDED ---
-        // Add the user's message to our conversation history state
-        currentConversation.push({ role: 'user', parts: [{ text: query }] });
         
-        chatContainer.scrollTop = chatContainer.scrollHeight; // Scroll to bottom
-        queryInput.value = ''; // Clear input
+        // Add user message to the current chat's message list
+        const currentChat = allChats.find(c => c.id === currentChatId);
+        currentChat.messages.push({ role: 'user', parts: [{ text: query }] });
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        queryInput.value = '';
 
-        // --- Set loading state ---
+        // Set loading state
         submitBtn.disabled = true;
         btnText.textContent = 'Processing';
         if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
@@ -127,16 +187,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chatContainer.scrollTop = chatContainer.scrollHeight;
 
         try {
-            // --- Send request to our own backend proxy ---
             const res = await fetch(`${window.location.origin}/api/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // --- CHANGED ---
-                // Send the query AND the conversation history
                 body: JSON.stringify({
                     query: query,
-                    // Send history *before* this user message for context
-                    history: currentConversation.slice(0, -1)
+                    history: currentChat.messages.slice(0, -1) // Send history *before* this user message
                 }),
             });
 
@@ -148,30 +204,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             const data = await res.json();
-
-            // --- ADDED ---
-            // Add the model's response to our conversation history state
-            currentConversation.push({ role: 'model', parts: [{ text: data.response }] });
             
-            // --- Display successful response ---
-            responseElement.innerHTML = `
-                <div class="response-header">
-                    <div class="response-indicator" style="background: #68D391;"></div>
-                    EDITH Response:
-                </div>
-                <div class="response-content">
-                    ${data.response}
-                </div>`;
+            // Add model response to the current chat's message list
+            currentChat.messages.push({ role: 'model', parts: [{ text: data.response }] });
+
+            // --- NEW: Update and Save History ---
+            if (isFirstMessage) {
+                renderChatHistoryList(); // Update the sidebar if it was a new chat
+            }
+            saveChatsToStorage(); // Save all chats to local storage
+            
+            // Display successful response
+            responseElement.innerHTML = createMessageHtml('model', data.response);
 
         } catch (error) {
-            // --- Display error message ---
             console.error('Fetch Error:', error);
             const responseElement = document.getElementById(responseId);
             responseElement.innerHTML = `
                 <div class="response-header error-header">System Alert:</div>
                 <div class="response-content error-content">${error.message}</div>`;
         } finally {
-            // --- Reset loading state ---
+            // Reset loading state
             submitBtn.disabled = false;
             btnText.textContent = 'Send';
             if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
@@ -186,6 +239,8 @@ document.addEventListener('DOMContentLoaded', () => {
         queryInput.style.height = (queryInput.scrollHeight) + 'px';
     });
 
-    // Initial render of chat history sidebar
-    renderChatHistory();
+    // --- NEW: Initial Load ---
+    // Load existing chats from storage and render the sidebar when the app starts
+    loadChatsFromStorage();
+    renderChatHistoryList();
 });
