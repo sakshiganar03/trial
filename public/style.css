@@ -21,8 +21,7 @@ body {
     height: 100dvh;  /* The modern fix that adapts to the keyboard */
 }
 
-/* These rules from your code are good but are mostly handled by Tailwind classes in your HTML. */
-/* I've kept them for clarity and to ensure the layout is robust. */
+/* These rules are good but are mostly handled by Tailwind classes in your HTML. */
 main {
     flex-grow: 1;
     overflow-y: auto;
@@ -200,6 +199,14 @@ main {
     }
     .query-textarea {
         font-size: 1rem;
+    }
+
+    /* --- NEW FIX: Make profile page less crowded on small screens --- */
+    .page-content {
+        padding: 1rem;
+    }
+    .profile-header {
+        margin-bottom: 1.5rem;
     }
 }
 
