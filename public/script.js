@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.insertAdjacentHTML('afterbegin', iconSend);
     btnText.textContent = 'Send';
 
-
     // --- Sidebar Toggle Functionality ---
     const openSidebar = () => sidebar.classList.remove('-translate-x-full');
     const closeSidebar = () => sidebar.classList.add('-translate-x-full');
@@ -45,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === aboutUsModal) closeModal();
     });
 
-    // --- NEW: Settings and Profile Page Logic ---
+    // --- Settings and Profile Page Logic ---
     const settingsBtn = document.getElementById('settings-btn');
     const settingsPage = document.getElementById('settings-page');
     const settingsBackBtn = document.getElementById('settings-back-btn');
@@ -53,6 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileBackBtn = document.getElementById('profile-back-btn');
     const editProfileLink = document.getElementById('edit-profile-link');
     const aboutLink = document.getElementById('about-link');
+    
+    // --- NEW: Profile Page Element References ---
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    const profileNameDisplay = document.getElementById('profile-name-display');
+    const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+    const profileUsernameInput = document.getElementById('profile-username');
+    const profileGenderSelect = document.getElementById('profile-gender');
+    const profilePhoneInput = document.getElementById('profile-phone');
+    const profileEmailInput = document.getElementById('profile-email');
+    const profileDobInput = document.getElementById('profile-dob');
 
     const showPage = (page) => {
         if (page) page.classList.remove('translate-x-full');
@@ -80,17 +89,53 @@ document.addEventListener('DOMContentLoaded', () => {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
     
-    // Make the "About" link in the new settings page open the existing "About Us" modal
     if (aboutLink) {
         aboutLink.addEventListener('click', (e) => {
             e.preventDefault();
             openModal();
         });
     }
+
+    // --- NEW: Profile Data Save/Load Logic ---
+    const saveProfileData = () => {
+        const userProfile = {
+            username: profileUsernameInput.value,
+            gender: profileGenderSelect.value,
+            phone: profilePhoneInput.value,
+            email: profileEmailInput.value,
+            dob: profileDobInput.value,
+        };
+        localStorage.setItem('edith_user_profile', JSON.stringify(userProfile));
+        alert('Profile saved!'); // Simple confirmation
+        loadProfileData(); // Reload data to update display
+        hidePage(editProfilePage); // Close the page after saving
+    };
+
+    const loadProfileData = () => {
+        const storedProfile = localStorage.getItem('edith_user_profile');
+        if (storedProfile) {
+            const userProfile = JSON.parse(storedProfile);
+            profileUsernameInput.value = userProfile.username || '';
+            profileGenderSelect.value = userProfile.gender || '';
+            profilePhoneInput.value = userProfile.phone || '';
+            profileEmailInput.value = userProfile.email || '';
+            profileDobInput.value = userProfile.dob || '';
+
+            // Update the display name and avatar in the profile header
+            const displayName = userProfile.username || 'User';
+            const displayAvatar = displayName.charAt(0).toUpperCase() || 'S';
+            
+            // Update all instances of the name and avatar
+            document.querySelectorAll('.profile-name').forEach(el => el.textContent = displayName);
+            document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = displayAvatar);
+        }
+    };
+    
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', saveProfileData);
+    }
     
     // --- Chat History Logic ---
-
-    // Load chats from browser's local storage
     const loadChatsFromStorage = () => {
         const storedChats = localStorage.getItem('edith_all_chats');
         if (storedChats) {
@@ -279,8 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
         queryInput.style.height = (queryInput.scrollHeight) + 'px';
     });
 
-    // --- NEW: Initial Load ---
-    // Load existing chats from storage and render the sidebar when the app starts
+    // --- Initial Load ---
     loadChatsFromStorage();
-    renderChatHistoryList();
+    renderChatHistoryList(); // This may already exist in your full file
+    loadProfileData(); // Load user profile data when the app starts
 });
