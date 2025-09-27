@@ -25,21 +25,24 @@ app.post('/api/gemini', async (req, res) => {
     return res.status(400).json({ error: 'Query is required.' });
   }
 
-  // --- THE FIX IS HERE: Using the stable 'gemini-pro' model with the 'v1beta' endpoint ---
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
+  // --- THE FIX IS HERE: Using the universally available 'chat-bison-001' model ---
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=${geminiApiKey}`;
 
-  const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
+  // Format the history and prompt for the chat-bison model
+  const messages = history ? history.map(turn => ({
+      author: turn.role === 'user' ? '0' : '1',
+      content: turn.parts[0].text
+  })) : [];
+  messages.push({ author: '0', content: query });
 
-  // --- AND HERE: Restored the 'systemInstruction' field, which is correct for v1beta ---
+  // --- AND HERE: The payload is adjusted for the chat-bison model's required format ---
   const payload = {
-    contents: contents,
-    systemInstruction: {
-      parts: [{ text: SYSTEM_PROMPT }]
+    prompt: {
+        context: SYSTEM_PROMPT,
+        messages: messages,
     },
-    generationConfig: {
-      maxOutputTokens: 200,
-      temperature: 0.7,
-    },
+    temperature: 0.7,
+    candidateCount: 1,
   };
 
   try {
@@ -51,17 +54,24 @@ app.post('/api/gemini', async (req, res) => {
 
     if (!apiResponse.ok) {
         const errorData = await apiResponse.json();
-        console.error('Gemini API Error:', errorData);
+        console.error('API Error:', errorData);
         throw new Error(errorData.error?.message || `API request failed with status ${apiResponse.status}`);
     }
 
     const data = await apiResponse.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    // The response structure is slightly different for this model
+    const text = data.candidates?.[0]?.content;
 
     if (text) {
       res.json({ response: text });
     } else {
-      res.json({ response: "I received a response, but it contained no content." });
+      // Check for a safety-related block reason
+      const blockReason = data.filters?.[0]?.reason;
+      if (blockReason) {
+        res.json({ response: `I cannot answer that. Response was blocked due to: ${blockReason}` });
+      } else {
+        res.json({ response: "I received a response, but it contained no content." });
+      }
     }
   } catch (error) {
     console.error('Proxy Error:', error);
@@ -76,4 +86,3 @@ app.use((req, res, next) => {
 app.listen(port, () => {
   console.log(`EDITH server running at http://localhost:${port}`);
 });
-
