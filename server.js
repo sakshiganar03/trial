@@ -11,7 +11,6 @@ const port = process.env.PORT || 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
-// ** THE SYSTEM PROMPT HAS BEEN UPDATED WITH FULL CAPABILITIES **
 const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your primary directive is factual accuracy across a comprehensive knowledge base, including mathematics, general topics, and language translation. Provide precise mathematical formulas, correct translations, and reliable information on all subjects. Responses must be professional, concise, and optimized for a small screen, strictly adhering to a 60-word limit. Prioritize core information to meet this constraint. If a fact cannot be confirmed with high certainty, state that you cannot verify the detail rather than providing an incorrect answer.";
 
 app.post('/api/gemini', async (req, res) => {
@@ -26,19 +25,17 @@ app.post('/api/gemini', async (req, res) => {
     return res.status(400).json({ error: 'Query is required.' });
   }
 
-  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;  
-  // --- THE FIX IS HERE ---
-  // The system prompt is now sent as the first message in the conversation history.
-  // A priming model response is added to maintain the user/model alternating order.
-  const contents = [
-    { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
-    { role: 'model', parts: [{ text: "Okay, I am ready to assist." }] },
-    ...(history || []),
-    { role: 'user', parts: [{ text: query }] }
-  ];
+  // --- THE FIX IS HERE: Using the stable 'gemini-pro' model with the 'v1beta' endpoint ---
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
 
+  const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
+
+  // --- AND HERE: Restored the 'systemInstruction' field, which is correct for v1beta ---
   const payload = {
-    contents: contents, // The systemInstruction field has been removed
+    contents: contents,
+    systemInstruction: {
+      parts: [{ text: SYSTEM_PROMPT }]
+    },
     generationConfig: {
       maxOutputTokens: 200,
       temperature: 0.7,
@@ -79,3 +76,4 @@ app.use((req, res, next) => {
 app.listen(port, () => {
   console.log(`EDITH server running at http://localhost:${port}`);
 });
+
