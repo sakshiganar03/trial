@@ -25,24 +25,21 @@ app.post('/api/gemini', async (req, res) => {
     return res.status(400).json({ error: 'Query is required.' });
   }
 
-  // --- THE FIX IS HERE: Using the universally available 'chat-bison-001' model ---
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta2/models/chat-bison-001:generateMessage?key=${geminiApiKey}`;
+  // Using the standard 'gemini-pro' model with the 'v1beta' endpoint.
+  // This requires a valid API key from a project with the Generative Language API enabled.
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
 
-  // Format the history and prompt for the chat-bison model
-  const messages = history ? history.map(turn => ({
-      author: turn.role === 'user' ? '0' : '1',
-      content: turn.parts[0].text
-  })) : [];
-  messages.push({ author: '0', content: query });
+  const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
 
-  // --- AND HERE: The payload is adjusted for the chat-bison model's required format ---
   const payload = {
-    prompt: {
-        context: SYSTEM_PROMPT,
-        messages: messages,
+    contents: contents,
+    systemInstruction: {
+      parts: [{ text: SYSTEM_PROMPT }]
     },
-    temperature: 0.7,
-    candidateCount: 1,
+    generationConfig: {
+      maxOutputTokens: 200,
+      temperature: 0.7,
+    },
   };
 
   try {
@@ -54,24 +51,17 @@ app.post('/api/gemini', async (req, res) => {
 
     if (!apiResponse.ok) {
         const errorData = await apiResponse.json();
-        console.error('API Error:', errorData);
+        console.error('Gemini API Error:', errorData);
         throw new Error(errorData.error?.message || `API request failed with status ${apiResponse.status}`);
     }
 
     const data = await apiResponse.json();
-    // The response structure is slightly different for this model
-    const text = data.candidates?.[0]?.content;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (text) {
       res.json({ response: text });
     } else {
-      // Check for a safety-related block reason
-      const blockReason = data.filters?.[0]?.reason;
-      if (blockReason) {
-        res.json({ response: `I cannot answer that. Response was blocked due to: ${blockReason}` });
-      } else {
-        res.json({ response: "I received a response, but it contained no content." });
-      }
+      res.json({ response: "I received a response, but it contained no content." });
     }
   } catch (error) {
     console.error('Proxy Error:', error);
