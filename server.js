@@ -26,8 +26,7 @@ app.post('/api/gemini', async (req, res) => {
     return res.status(400).json({ error: 'Query is required.' });
   }
 
- const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
-  
+  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${geminiApiKey}`;  
   // --- THE FIX IS HERE ---
   // The system prompt is now sent as the first message in the conversation history.
   // A priming model response is added to maintain the user/model alternating order.
