@@ -210,11 +210,22 @@ main {
     }
 }
 
-/* --- NEW: Settings & Profile Page Styles --- */
+/* --- Settings & Profile Page Styles --- */
 .page {
     background: linear-gradient(45deg, #FBFBFB, #E8F9FF, #C4D9FF);
     display: flex;
     flex-direction: column;
+}
+
+/* NEW: Simplified Header for Profile Page */
+.simple-header {
+    display: flex;
+    padding: 1rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
 }
 
 .page-header {
@@ -240,8 +251,18 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 2.5rem;
+    gap: 0.5rem; /* Reduced gap */
+    margin-top: 2rem; /* Added margin to push it down from the simple header */
+    margin-bottom: 2rem; /* Reduced margin */
+    flex-shrink: 0;
+}
+
+/* NEW: Title for Edit Profile page */
+.edit-profile-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2D3748;
+    margin-top: 0.5rem;
 }
 
 .profile-avatar {
@@ -270,6 +291,7 @@ main {
     margin-bottom: 1.5rem;
     border: 1px solid #C4D9FF;
     overflow: hidden;
+    flex-shrink: 0;
 }
 
 .settings-item {
@@ -308,7 +330,6 @@ main {
     font-family: 'Inter', sans-serif;
 }
 
-/* Styling for the dropdown arrow */
 .settings-select {
     -webkit-appearance: none;
     -moz-appearance: none;
