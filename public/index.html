@@ -43,6 +43,7 @@
                 <div class="flex-1"></div>
                 <div class="flex items-center gap-4">
                     <button id="about-us-btn" class="btn btn-secondary text-sm px-4 py-2">About Us</button>
+                    <!-- ADDED ID to this button -->
                     <button id="settings-btn" class="w-10 h-10 bg-[#5A67D8] rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-[#C5BAFF]">S</button>
                 </div>
             </header>
@@ -66,7 +67,6 @@
         </main>
     </div>
 
-
     <div id="about-us-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
         <div class="modal-content w-full max-w-2xl max-h-[90vh] flex flex-col">
             <div class="modal-header p-6 flex items-center justify-between">
@@ -76,21 +76,26 @@
                 </button>
             </div>
             <div class="modal-body p-6 space-y-6 overflow-y-auto text-sm">
-                </div>
+                <!-- Modal content is unchanged -->
+            </div>
         </div>
     </div>
     
+    <!-- ================================== -->
+    <!-- NEW: Settings Page                 -->
+    <!-- ================================== -->
     <div id="settings-page" class="page fixed inset-0 z-40 transform translate-x-full transition-transform duration-300 ease-in-out">
         <header class="page-header">
             <button id="settings-back-btn" class="p-2 rounded-full btn-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
             <h2 class="text-xl font-bold">Settings</h2>
-            <div class="w-10"></div> </header>
+            <div class="w-10"></div> <!-- Spacer -->
+        </header>
         <div class="page-content">
             <div class="profile-header">
                 <div class="profile-avatar">S</div>
-                <div class="profile-name">Sakshi</div>
+                <div class="profile-name">User</div>
             </div>
             <div class="settings-group">
                 <a href="#" class="settings-item"><span>My Device</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
@@ -103,50 +108,31 @@
         </div>
     </div>
 
+    <!-- ================================== -->
+    <!-- NEW: Edit Profile Page (Redesigned) -->
+    <!-- ================================== -->
     <div id="edit-profile-page" class="page fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
-        <header class="page-header">
+        <!-- New simple header with only a back button -->
+        <header class="simple-header">
             <button id="profile-back-btn" class="p-2 rounded-full btn-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2D3748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
-            <h2 class="text-xl font-bold">Edit Profile</h2>
-            <div class="w-10"></div> </header>
+        </header>
         <div class="page-content">
             <div class="profile-header">
                 <div id="profile-avatar-display" class="profile-avatar">S</div>
                 <div id="profile-name-display" class="profile-name">User</div>
+                <p class="edit-profile-title">Edit Profile</p>
             </div>
             <div class="settings-group">
-                <div class="settings-item">
-                    <span>User Name</span>
-                    <input type="text" id="profile-username" placeholder="Not set" class="settings-input">
-                </div>
-                <div class="settings-item">
-                    <span>Gender</span>
-                    <select id="profile-gender" class="settings-select">
-                        <option value="" disabled selected>Select...</option>
-                        <option value="Female">Female</option>
-                        <option value="Male">Male</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                 <div class="settings-item">
-                    <span>Phone Number</span>
-                    <input type="tel" id="profile-phone" placeholder="Not set" class="settings-input">
-                </div>
-                 <div class="settings-item">
-                    <span>Email</span>
-                    <input type="email" id="profile-email" placeholder="Not set" class="settings-input">
-                </div>
-                 <div class="settings-item">
-                    <span>Date of Birth</span>
-                    <input type="date" id="profile-dob" class="settings-input">
-                </div>
+                <div class="settings-item"><span>User Name</span><input type="text" id="profile-username" placeholder="Not set" class="settings-input"></div>
+                <div class="settings-item"><span>Gender</span><select id="profile-gender" class="settings-select"><option value="" disabled selected>Select...</option><option value="Female">Female</option><option value="Male">Male</option><option value="Other">Other</option></select></div>
+                <div class="settings-item"><span>Phone Number</span><input type="tel" id="profile-phone" placeholder="Not set" class="settings-input"></div>
+                <div class="settings-item"><span>Email</span><input type="email" id="profile-email" placeholder="Not set" class="settings-input"></div>
+                <div class="settings-item"><span>Date of Birth</span><input type="date" id="profile-dob" class="settings-input"></div>
             </div>
              <div class="settings-group">
-                 <a href="#" class="settings-item text-red-500">
-                    <span>Delete Account</span>
-                    <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </a>
+                 <a href="#" class="settings-item text-red-500"><span>Delete Account</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
             </div>
              <div class="p-4 mt-auto">
                 <button id="save-profile-btn" class="btn btn-primary w-full py-3">Save Changes</button>
