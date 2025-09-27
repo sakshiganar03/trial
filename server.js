@@ -28,13 +28,18 @@ app.post('/api/gemini', async (req, res) => {
 
  const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
   
-  const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
+  // --- THE FIX IS HERE ---
+  // The system prompt is now sent as the first message in the conversation history.
+  // A priming model response is added to maintain the user/model alternating order.
+  const contents = [
+    { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+    { role: 'model', parts: [{ text: "Okay, I am ready to assist." }] },
+    ...(history || []),
+    { role: 'user', parts: [{ text: query }] }
+  ];
 
   const payload = {
-    contents: contents,
-    systemInstruction: {
-      parts: [{ text: SYSTEM_PROMPT }]
-    },
+    contents: contents, // The systemInstruction field has been removed
     generationConfig: {
       maxOutputTokens: 200,
       temperature: 0.7,
