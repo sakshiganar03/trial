@@ -11,6 +11,7 @@ const port = process.env.PORT || 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
+// ** THE SYSTEM PROMPT HAS BEEN UPDATED WITH FULL CAPABILITIES **
 const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your primary directive is factual accuracy across a comprehensive knowledge base, including mathematics, general topics, and language translation. Provide precise mathematical formulas, correct translations, and reliable information on all subjects. Responses must be professional, concise, and optimized for a small screen, strictly adhering to a 60-word limit. Prioritize core information to meet this constraint. If a fact cannot be confirmed with high certainty, state that you cannot verify the detail rather than providing an incorrect answer.";
 
 app.post('/api/gemini', async (req, res) => {
@@ -25,9 +26,7 @@ app.post('/api/gemini', async (req, res) => {
     return res.status(400).json({ error: 'Query is required.' });
   }
 
-  // Using the standard 'gemini-pro' model with the 'v1beta' endpoint.
-  // This requires a valid API key from a project with the Generative Language API enabled.
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`;
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`;
 
   const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
 
