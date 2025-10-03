@@ -28,13 +28,16 @@ app.post('/api/gemini', async (req, res) => {
 
   const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`;
 
-  const contents = [...(history || []), { role: 'user', parts: [{ text: query }] }];
+  const contents = [
+    { role: 'user', parts: [{ text: SYSTEM_PROMPT }] },
+    { role: 'model', parts: [{ text: "Okay, I am ready to assist." }] },
+    ...(history || []),
+    { role: 'user', parts: [{ text: query }] }
+  ];
 
+  // The 'systemInstruction' field has been removed from the payload.
   const payload = {
     contents: contents,
-    systemInstruction: {
-      parts: [{ text: SYSTEM_PROMPT }]
-    },
     generationConfig: {
       maxOutputTokens: 200,
       temperature: 0.7,
