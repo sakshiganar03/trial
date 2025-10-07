@@ -15,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnText = document.getElementById('btn-text');
     const chatContainer = document.getElementById('chat-container');
     const welcomeMessage = document.getElementById('welcome-message');
+    const mainHeading = document.querySelector('.main-heading');
+
+    // --- NEW: Authentication UI References ---
+    const signInBtn = document.getElementById('sign-in-btn');
+    const profileAvatarBtn = document.getElementById('profile-avatar-btn');
 
     // --- State Management ---
     let allChats = []; // Holds all chat sessions {id, title, messages}
@@ -25,9 +30,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconProcessing = `<div class="spinner"></div>`;
     
     // Set initial button icon
-    if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
-    submitBtn.insertAdjacentHTML('afterbegin', iconSend);
-    btnText.textContent = 'Send';
+    if(submitBtn && btnText){
+        if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
+        submitBtn.insertAdjacentHTML('afterbegin', iconSend);
+        btnText.textContent = 'Send';
+    }
 
     // --- Sidebar Toggle Functionality ---
     const openSidebar = () => sidebar.classList.remove('-translate-x-full');
@@ -45,14 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Settings and Profile Page Logic ---
-    const settingsBtn = document.getElementById('settings-btn');
     const settingsPage = document.getElementById('settings-page');
     const settingsBackBtn = document.getElementById('settings-back-btn');
     const editProfilePage = document.getElementById('edit-profile-page');
     const profileBackBtn = document.getElementById('profile-back-btn');
     const editProfileLink = document.getElementById('edit-profile-link');
     const aboutLink = document.getElementById('about-link');
-    
+
     // --- NEW: Profile Page Element References ---
     const saveProfileBtn = document.getElementById('save-profile-btn');
     const profileNameDisplay = document.getElementById('profile-name-display');
@@ -69,14 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const hidePage = (page) => {
         if (page) page.classList.add('translate-x-full');
     };
-
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', () => showPage(settingsPage));
+    
+    // MODIFIED: The settings button is now the profile avatar
+    if (profileAvatarBtn) {
+        profileAvatarBtn.addEventListener('click', () => showPage(settingsPage));
     }
     if (settingsBackBtn) {
         settingsBackBtn.addEventListener('click', () => {
             hidePage(settingsPage);
-            hidePage(editProfilePage); // Also hide profile page if it was open
+            hidePage(editProfilePage); 
         });
     }
     if (editProfileLink) {
@@ -88,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profileBackBtn) {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
-    
     if (aboutLink) {
         aboutLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -96,6 +102,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- NEW: Authentication UI Logic ---
+    const updateAuthUI = () => {
+        const username = localStorage.getItem('edith_username');
+        if (username) {
+            // User is logged in
+            if(signInBtn) signInBtn.classList.add('hidden');
+            if(profileAvatarBtn) profileAvatarBtn.classList.remove('hidden');
+
+            const initial = username.charAt(0).toUpperCase();
+            if(profileAvatarBtn) profileAvatarBtn.textContent = initial;
+            
+            if(mainHeading) mainHeading.textContent = `Hello, ${username}`;
+
+        } else {
+            // User is logged out
+            if(signInBtn) signInBtn.classList.remove('hidden');
+            if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
+            if(mainHeading) mainHeading.textContent = `Hello, Guest`;
+        }
+    };
+
+    if (signInBtn) {
+        signInBtn.addEventListener('click', () => {
+            // Redirect to the login page
+            window.location.href = 'login.html';
+        });
+    }
     // --- NEW: Profile Data Save/Load Logic ---
     const saveProfileData = () => {
         const userProfile = {
@@ -325,7 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initial Load ---
-    loadChatsFromStorage();
-    renderChatHistoryList(); // This may already exist in your full file
-    loadProfileData(); // Load user profile data when the app starts
+    updateAuthUI(); // Check login status on page load
+    loadChatsFromStorage(); // Assuming this is in your full file
+    renderChatHistoryList(); // Assuming this is in your full file
+    loadProfileData(); // Assuming this is in your full file
 });
