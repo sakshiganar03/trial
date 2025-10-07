@@ -43,15 +43,21 @@
                 <div class="flex-1"></div>
                 <div class="flex items-center gap-4">
                     
-                    <!-- ADDED ID to this button -->
-                    <button id="settings-btn" class="w-10 h-10 bg-[#5A67D8] rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-[#C5BAFF]">S</button>
+                    <!-- === THE NEEDFUL CHANGE IS HERE === -->
+                    <!-- This is the new Sign In button, visible by default -->
+                    <button id="sign-in-btn" class="btn btn-primary text-sm px-4 py-2">Sign In</button>
+                    
+                    <!-- This is your existing avatar, now hidden by default and with a new ID -->
+                    <button id="profile-avatar-btn" class="w-10 h-10 bg-[#5A67D8] rounded-full flex items-center justify-center text-white font-bold text-lg border-2 border-[#C5BAFF] hidden">S</button>
+                    <!-- === END OF CHANGE === -->
+
                 </div>
             </header>
 
             <div class="flex-1 flex flex-col w-full max-w-3xl mx-auto overflow-y-auto">
                 <div id="chat-container" class="flex-1 flex flex-col justify-center">
                     <div id="welcome-message" class="text-center">
-                        <h2 class="main-heading mb-12">Hello, Sakshi</h2>
+                        <h2 class="main-heading mb-12">Hello, Guest</h2>
                     </div>
                 </div>
             </div>
@@ -66,7 +72,7 @@
             </form>
         </main>
     </div>
-
+    
     <div id="about-us-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
         <div class="modal-content w-full max-w-2xl max-h-[90vh] flex flex-col">
             <div class="modal-header p-6 flex items-center justify-between">
@@ -101,9 +107,7 @@
                 <a href="#" class="settings-item"><span>My Device</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
                 <a href="#" class="settings-item"><span>General</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
                 <a href="#" id="about-link" class="settings-item"><span>About</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
-            </div>
-            <div class="settings-group">
-                 <a href="#" id="edit-profile-link" class="settings-item"><span>Edit Profile</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
+                <a href="#" id="edit-profile-link" class="settings-item"><span>Edit Profile</span><svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></a>
             </div>
         </div>
     </div>
