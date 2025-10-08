@@ -1,148 +1,174 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"poppins",sans-serif;
+:root {
+    --primary-color: #5A67D8;
+    --primary-hover: #4c51bf;
+    --background-color: #E8F9FF;
+    --container-bg: rgba(255, 255, 255, 0.85);
+    --text-primary: #2D3748;
+    --text-secondary: #718096;
+    --border-color: #C4D9FF;
+    --error-color: #e53e3e;
+    --shadow-color: rgba(90, 103, 216, 0.1);
+    --grid-color: rgba(196, 217, 255, 0.5);
 }
-body{
-    background-color: #c9d6ff;
-    background:linear-gradient(to right,#e2e2e2,#c9d6ff);
-}
-.container{
-    background:#fff;
-    width:450px;
-    padding:1.5rem;
-    margin:50px auto;
-    border-radius:10px;
-    box-shadow:0 20px 35px rgba(0,0,1,0.9);
-}
-form{
-    margin:0 2rem;
-}
-.form-title{
-    font-size:1.5rem;
-    font-weight:bold;
-    text-align:center;
-    padding:1.3rem;
-    margin-bottom:0.4rem;
-}
-input{
-    color:inherit;
-    width:100%;
-    background-color:transparent;
-    border:none;
-    border-bottom:1px solid #757575;
-    padding-left:1.5rem;
-    font-size:15px;
-}
-.input-group{
-    padding:1% 0;
-    position:relative;
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
 }
-.input-group i{
-    position:absolute;
-    color:black;
+
+body {
+    background-color: var(--background-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
 }
-input:focus{
+
+.grid-pattern {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-image:
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none; z-index: -1;
+}
+
+.container {
+    background: var(--container-bg);
+    backdrop-filter: blur(10px);
+    width: 450px;
+    padding: 1.5rem;
+    margin: 50px auto;
+    border-radius: 10px;
+    box-shadow: 0 20px 35px var(--shadow-color);
+    border: 1px solid white;
+}
+
+form {
+    margin: 0 1rem;
+}
+
+.form-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    padding: 1.3rem;
+    margin-bottom: 0.4rem;
+    color: var(--primary-color);
+}
+
+.input-group {
+    padding: 1% 0;
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-group i {
+    position: absolute;
+    color: var(--text-secondary);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+input {
+    color: inherit;
+    width: 100%;
     background-color: transparent;
-    outline:transparent;
-    border-bottom:2px solid hsl(327,90%,28%);
+    border: none;
+    border-bottom: 2px solid var(--border-color);
+    padding: 10px 10px 10px 2rem;
+    font-size: 16px;
+    transition: border-color 0.3s;
 }
-input::placeholder{
-    color:transparent;
-}
-label{
-    color:#757575;
-    position:relative;
-    left:1.2em;
-    top:-1.3em;
-    cursor:auto;
-    transition:0.3s ease all;
-}
-input:focus~label,input:not(:placeholder-shown)~label{
-    top:-3em;
-    color:hsl(327,90%,28%);
-    font-size:15px;
-}
-.recover{
-    text-align:right;
-    font-size:1rem;
-    margin-bottom:1rem;
 
+input:focus {
+    outline: none;
+    border-bottom: 2px solid var(--primary-color);
 }
-.recover a{
-    text-decoration:none;
-    color:rgb(125,125,235);
+
+.recover {
+    text-align: right;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
 }
-.recover a:hover{
-    color:blue;
-    text-decoration:underline;
+
+.recover a {
+    text-decoration: none;
+    color: var(--primary-color);
 }
-button{
-    font-size:1.1rem;
-    padding:8px 0;
-    border-radius:5px;
-    outline:none;
-    border:none;
-    width:100%;
-    background:rgb(125,125,235);
-    color:white;
-    cursor:pointer;
-    transition:0.9s;
+
+.btn {
+    font-size: 1.1rem;
+    padding: 12px 0;
+    border-radius: 8px;
+    outline: none;
+    border: none;
+    width: 100%;
+    background: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
-button:hover{
-    background:#07001f;
+
+.btn:hover {
+    background: var(--primary-hover);
 }
-.or{
-    font-size:1.1rem;
-    margin-top:0.5rem;
-    text-align:center;
+
+.or {
+    font-size: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
 }
-.icons{
-    text-align:center;
+
+.icons {
+    text-align: center;
+    margin-top: 1rem;
 }
-.icons i{
-    color:rgb(125,125,235);
-    padding:0.8rem 1.5rem;
-    border-radius:10px;
-    font-size:1.5rem;
-    cursor:pointer;
-    border:2px solid #dfe9f5;
-    margin:0 15px;
-    transition:1s;
+
+.icons i {
+    color: var(--primary-color);
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border: 2px solid var(--border-color);
+    margin: 0 10px;
+    transition: all 0.3s;
 }
-.icons i:hover{
-    background:#07001f;
-    font-size:1.6rem;
-    border:2px solid rgb(125,125,235);
+
+.icons i:hover {
+    background: var(--primary-color);
+    color: white;
 }
-.links{
-    display:flex;
-    justify-content:space-around;
-    padding:0 4rem;
-    margin-top:0.9rem;
-    font-weight:bold;
+
+.links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 1rem;
+    margin-top: 1.5rem;
+    font-weight: normal;
+    color: var(--text-secondary);
 }
- #signUpButton, #signInButton{
-    color:rgb(125,125,235);
-    border:none;
-    background-color:transparent;
-    font-size:1rem;
-    font-weight:bold;
+
+#signUpButton, #signInButton {
+    color: var(--primary-color);
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 5px;
 }
-#signUpButton:hover, #signInButton:hover {
-    text-decoration:underline;
-    color:blue;
-} 
-.messageDiv{
-    background-color:hsl(327,90%,28%);
-    color:white;
-    padding:10px 20px;
-    margin:10px;
+
+.message-div {
+    padding: 10px 20px;
+    margin-bottom: 15px;
     border-radius: 5px;
-    font-size:1rem;
-    opacity:0;
-    animation:fadeOut 7s forwards;
-
+    font-size: 0.9rem;
+    text-align: center;
 }
