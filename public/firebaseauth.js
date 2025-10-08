@@ -4,7 +4,9 @@ import {
     createUserWithEmailAndPassword, 
     signInWithEmailAndPassword,
     GoogleAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -23,10 +25,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore();
+const provider = new GoogleAuthProvider();
+
 
 // --- Helper Functions ---
 function showMessage(elementId, message, isError = true) {
     const messageElement = document.getElementById(elementId);
+    if (!messageElement) return;
     messageElement.textContent = message;
     messageElement.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
     messageElement.style.color = isError ? '#721c24' : '#155724';
@@ -34,78 +39,82 @@ function showMessage(elementId, message, isError = true) {
 }
 
 function redirectToChat(username) {
-    // Save the username for the main chat page
-    localStorage.setItem('edith_username', username);
-    // Redirect to the main chat page
+    // This is a more robust way to save the username
+    if (username) {
+        localStorage.setItem('edith_username', username);
+    }
     window.location.href = 'index.html';
 }
 
 // --- Sign Up Logic ---
 const submitSignUp = document.getElementById('submitSignUp');
-submitSignUp.addEventListener('click', (event) => {
-    event.preventDefault();
-    const email = document.getElementById('rEmail').value;
-    const password = document.getElementById('rPassword').value;
-    const firstName = document.getElementById('fName').value;
-    const lastName = document.getElementById('lName').value;
+if (submitSignUp) {
+    submitSignUp.addEventListener('click', (event) => {
+        event.preventDefault();
+        const email = document.getElementById('rEmail').value;
+        const password = document.getElementById('rPassword').value;
+        const firstName = document.getElementById('fName').value;
+        const lastName = document.getElementById('lName').value;
 
-    createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-            const userData = {
-                firstName: firstName,
-                lastName: lastName,
-                email: email
-            };
-            return setDoc(doc(db, "users", user.uid), userData)
-                .then(() => {
-                    showMessage('signUpMessage', 'Account Created Successfully!', false);
-                    setTimeout(() => redirectToChat(firstName), 1000); // Redirect after a short delay
-                });
-        })
-        .catch((error) => {
-            if (error.code === 'auth/email-already-in-use') {
-                showMessage('signUpMessage', 'Email Address Already Exists!');
-            } else {
-                showMessage('signUpMessage', 'Unable to create account. Please try again.');
-            }
-        });
-});
+        createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                const userData = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email
+                };
+                return setDoc(doc(db, "users", user.uid), userData)
+                    .then(() => {
+                        showMessage('signUpMessage', 'Account Created Successfully!', false);
+                        setTimeout(() => redirectToChat(firstName), 1000);
+                    });
+            })
+            .catch((error) => {
+                if (error.code === 'auth/email-already-in-use') {
+                    showMessage('signUpMessage', 'Email Address Already Exists!');
+                } else {
+                    showMessage('signUpMessage', 'Unable to create account. Please try again.');
+                }
+            });
+    });
+}
 
 // --- Sign In Logic ---
 const submitSignIn = document.getElementById('submitSignIn');
-submitSignIn.addEventListener('click', (event) => {
-    event.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+if (submitSignIn) {
+    submitSignIn.addEventListener('click', (event) => {
+        event.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-    signInWithEmailAndPassword(auth, email, password)
-        .then(async (userCredential) => {
-            const user = userCredential.user;
-            const docRef = doc(db, "users", user.uid);
-            const docSnap = await getDoc(docRef);
-            
-            let username = 'User';
-            if (docSnap.exists()) {
-                username = docSnap.data().firstName;
-            }
-            
-            showMessage('signInMessage', 'Login is successful!', false);
-            setTimeout(() => redirectToChat(username), 1000); // Redirect after a short delay
-        })
-        .catch((error) => {
-            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                showMessage('signInMessage', 'Incorrect Email or Password.');
-            } else {
-                showMessage('signInMessage', 'Unable to sign in. Please try again.');
-            }
-        });
-});
+        signInWithEmailAndPassword(auth, email, password)
+            .then(async (userCredential) => {
+                const user = userCredential.user;
+                const docRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(docRef);
+                
+                let username = 'User';
+                if (docSnap.exists()) {
+                    username = docSnap.data().firstName;
+                }
+                
+                showMessage('signInMessage', 'Login is successful!', false);
+                setTimeout(() => redirectToChat(username), 1000);
+            })
+            .catch((error) => {
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    showMessage('signInMessage', 'Incorrect Email or Password.');
+                } else {
+                    showMessage('signInMessage', 'Unable to sign in. Please try again.');
+                }
+            });
+    });
+}
 
 // --- Google Sign-In Logic ---
 const googleSignInBtn = document.getElementById('googleSignIn');
 const googleSignUpBtn = document.getElementById('googleSignUp');
-const provider = new GoogleAuthProvider();
 
 const signInWithGoogle = () => {
     signInWithPopup(auth, provider)
@@ -122,3 +131,38 @@ const signInWithGoogle = () => {
 
 if (googleSignInBtn) googleSignInBtn.addEventListener('click', signInWithGoogle);
 if (googleSignUpBtn) googleSignUpBtn.addEventListener('click', signInWithGoogle);
+
+
+// --- NEW: Function to get user profile data ---
+// This function will be exported so other scripts can use it.
+async function getUserProfileData() {
+    const user = auth.currentUser;
+    if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return docSnap.data();
+        } else if (user.displayName) {
+            // Fallback for Google sign-in users
+            return {
+                firstName: user.displayName.split(' ')[0],
+                lastName: user.displayName.split(' ').slice(1).join(' '),
+                email: user.email
+            };
+        } else {
+            // Fallback if no data at all
+            return {
+                firstName: "User",
+                lastName: "",
+                email: user.email
+            };
+        }
+    }
+    return null; // No user is signed in
+}
+
+// --- EXPORTS ---
+// We export the necessary services and functions for other scripts to use.
+export { auth, onAuthStateChanged, signOut, getUserProfileData };
+
