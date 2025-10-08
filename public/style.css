@@ -21,7 +21,8 @@ body {
     height: 100dvh;  /* The modern fix that adapts to the keyboard */
 }
 
-/* These rules are good but are mostly handled by Tailwind classes in your HTML. */
+/* These rules from your code are good but are mostly handled by Tailwind classes in your HTML. */
+/* I've kept them for clarity and to ensure the layout is robust. */
 main {
     flex-grow: 1;
     overflow-y: auto;
@@ -201,12 +202,32 @@ main {
         font-size: 1rem;
     }
 
-    /* --- NEW FIX: Make profile page less crowded on small screens --- */
+    /* --- THE NEEDFUL CHANGE IS HERE --- */
+    /* This new block of styles will only apply on mobile screens */
     .page-content {
         padding: 1rem;
     }
     .profile-header {
+        margin-top: 1rem;
         margin-bottom: 1.5rem;
+        gap: 0.25rem;
+    }
+    .profile-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 2rem;
+    }
+    .profile-name {
+        font-size: 1.25rem;
+    }
+    .edit-profile-title {
+        font-size: 1rem;
+    }
+    .settings-group {
+        margin-bottom: 1rem;
+    }
+    .settings-item {
+        padding: 0.75rem 1rem;
     }
 }
 
@@ -217,7 +238,6 @@ main {
     flex-direction: column;
 }
 
-/* NEW: Simplified Header for Profile Page */
 .simple-header {
     display: flex;
     padding: 1rem;
@@ -242,7 +262,7 @@ main {
 .page-content {
     flex-grow: 1;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
 }
@@ -251,26 +271,25 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.25rem; /* Reduced gap */
-    margin-top: 1rem; /* Added margin to push it down from the simple header */
-    margin-bottom: 1.5rem; /* Reduced margin */
+    gap: 0.5rem; /* Reduced gap */
+    margin-top: 2rem; /* Added margin to push it down from the simple header */
+    margin-bottom: 2rem; /* Reduced margin */
     flex-shrink: 0;
 }
 
-/* NEW: Title for Edit Profile page */
 .edit-profile-title {
-    font-size: 1rem;
+    font-size: 1.25rem;
     font-weight: bold;
     color: #2D3748;
     margin-top: 0.5rem;
 }
 
 .profile-avatar {
-    width: 64px;
-    height: 64px;
+    width: 80px;
+    height: 80px;
     background-color: #5A67D8;
     color: white;
-    font-size: 2rem;
+    font-size: 2.5rem;
     font-weight: bold;
     border-radius: 50%;
     display: flex;
@@ -280,7 +299,7 @@ main {
 }
 
 .profile-name {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: #2D3748;
 }
@@ -288,7 +307,7 @@ main {
 .settings-group {
     background: rgba(255, 255, 255, 0.6);
     border-radius: 12px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
     border: 1px solid #C4D9FF;
     overflow: hidden;
     flex-shrink: 0;
@@ -298,7 +317,7 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
+    padding: 1rem;
     color: #2D3748;
     text-decoration: none;
     border-bottom: 1px solid #E8F9FF;
@@ -339,3 +358,4 @@ main {
     background-position: right 0px center;
     padding-right: 20px;
 }
+
