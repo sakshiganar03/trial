@@ -100,6 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // User is signed in
             const userProfile = await getUserProfileData();
             updateUIForLoggedInUser(userProfile);
+            loadChatsFromStorage(); // Load user-specific chats
+            renderChatHistoryList();
         } else {
             // User is signed out
             updateUIForLoggedOutUser();
@@ -155,35 +157,122 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
     
-    // --- Chat History Logic ---
+       // --- Chat History Logic (UPDATED) ---
     const loadChatsFromStorage = () => {
-        const storedChats = localStorage.getItem('edith_all_chats');
+        const user = auth.currentUser;
+        if (!user) return;
+        const storedChats = localStorage.getItem(`edith_all_chats_${user.uid}`);
         if (storedChats) {
             allChats = JSON.parse(storedChats);
+        } else {
+            allChats = [];
         }
     };
 
-    // Save chats to browser's local storage
     const saveChatsToStorage = () => {
-        localStorage.setItem('edith_all_chats', JSON.stringify(allChats));
+        const user = auth.currentUser;
+        if (!user) return;
+        localStorage.setItem(`edith_all_chats_${user.uid}`, JSON.stringify(allChats));
     };
 
-    // Render the list of chats in the sidebar
+    // --- NEW: Chat Action Functions ---
+    const handleRenameChat = (chatId) => {
+        const chat = allChats.find(c => c.id === chatId);
+        if (!chat) return;
+        
+        const newTitle = prompt("Enter a new name for this chat:", chat.title);
+        if (newTitle && newTitle.trim() !== "") {
+            chat.title = newTitle.trim();
+            saveChatsToStorage();
+            renderChatHistoryList();
+        }
+    };
+
+    const handleArchiveChat = (chatId) => {
+        const chat = allChats.find(c => c.id === chatId);
+        if (!chat) return;
+        
+        // This is a simple implementation. You could add a dedicated "Archived" view later.
+        chat.isArchived = true; 
+        saveChatsToStorage();
+        renderChatHistoryList(); // Re-render to hide the archived chat
+        if (currentChatId === chatId) {
+            startNewChat(); // If we archived the active chat, start a new one
+        }
+    };
+
+    const handleDeleteChat = (chatId) => {
+        if (confirm("Are you sure you want to delete this chat?")) {
+            allChats = allChats.filter(c => c.id !== chatId);
+            saveChatsToStorage();
+            renderChatHistoryList();
+            if (currentChatId === chatId) {
+                startNewChat(); // If we deleted the active chat, start a new one
+            }
+        }
+    };
+    
+    // This closes any open menu if you click elsewhere on the page
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.chat-history-item-container')) {
+            document.querySelectorAll('.chat-options-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        }
+    });
+
+    // --- UPDATED: Render the list of chats in the sidebar ---
     const renderChatHistoryList = () => {
-        chatHistoryContainer.innerHTML = ''; // Clear existing list
-        allChats.forEach(chat => {
+        if (!chatHistoryContainer) return;
+        chatHistoryContainer.innerHTML = '';
+        
+        const activeChats = allChats.filter(chat => !chat.isArchived);
+
+        activeChats.forEach(chat => {
+            const container = document.createElement('div');
+            container.className = 'chat-history-item-container';
+
             const chatLink = document.createElement('a');
             chatLink.href = '#';
             chatLink.className = 'chat-history-link';
-            chatLink.textContent = chat.title.length > 25 ? chat.title.substring(0, 22) + '...' : chat.title;
+            chatLink.textContent = chat.title.length > 20 ? chat.title.substring(0, 17) + '...' : chat.title;
             chatLink.dataset.id = chat.id;
-
             chatLink.addEventListener('click', (e) => {
                 e.preventDefault();
                 loadChat(chat.id);
             });
 
-            chatHistoryContainer.appendChild(chatLink);
+            const optionsBtn = document.createElement('button');
+            optionsBtn.className = 'chat-options-btn';
+            optionsBtn.innerHTML = '...';
+            optionsBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent the link click event
+                
+                // Close any other open menus first
+                document.querySelectorAll('.chat-options-menu').forEach(m => m.remove());
+
+                const menu = document.createElement('div');
+                menu.className = 'chat-options-menu';
+                menu.innerHTML = `
+                    <a href="#" class="chat-options-item" data-action="rename">Rename</a>
+                    <a href="#" class="chat-options-item" data-action="archive">Archive</a>
+                    <a href="#" class="chat-options-item delete" data-action="delete">Delete</a>
+                `;
+                container.appendChild(menu);
+                
+                // Add event listeners to the new menu items
+                menu.addEventListener('click', (menuEvent) => {
+                    const action = menuEvent.target.dataset.action;
+                    if (action === 'rename') handleRenameChat(chat.id);
+                    if (action === 'archive') handleArchiveChat(chat.id);
+                    if (action === 'delete') handleDeleteChat(chat.id);
+                    menu.remove(); // Close menu after action
+                });
+            });
+
+            container.appendChild(chatLink);
+            container.appendChild(optionsBtn);
+            chatHistoryContainer.appendChild(container);
         });
     };
 
