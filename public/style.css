@@ -382,13 +382,19 @@ main {
 .chat-options-btn {
     background: transparent;
     border: none;
-    color: #718096;
+    color: #A0AEC0;
     cursor: pointer;
     padding: 8px;
     border-radius: 50%;
     font-weight: bold;
     line-height: 1;
     flex-shrink: 0;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.2s;
+}
+
+.chat-history-item-container:hover .chat-options-btn {
+    opacity: 1; /* Show on hover */
 }
 
 .chat-options-btn:hover {
@@ -433,4 +439,15 @@ main {
     background-color: rgba(229, 62, 62, 0.1);
 }
 
+/* NEW: Style for the inline rename input */
+.chat-history-rename-input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #C5BAFF;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    color: #5A67D8;
+    background-color: rgba(196, 217, 255, 0.3);
+}
 
