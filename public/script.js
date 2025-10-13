@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
     const sidebar = document.getElementById('sidebar');
@@ -18,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const welcomeMessage = document.getElementById('welcome-message');
     const mainHeading = document.querySelector('.main-heading');
 
-    // --- Authentication UI References ---
+    // --- NEW: Authentication UI References ---
     const signInBtn = document.getElementById('sign-in-btn');
     const profileAvatarBtn = document.getElementById('profile-avatar-btn');
 
@@ -30,18 +29,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconSend = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     const iconProcessing = `<div class="spinner"></div>`;
     
+    // Set initial button icon
     if(submitBtn && btnText){
         if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
         submitBtn.insertAdjacentHTML('afterbegin', iconSend);
         btnText.textContent = 'Send';
     }
 
-    // --- Sidebar & Modal Functionality ---
+    // --- Sidebar Toggle Functionality ---
     const openSidebar = () => sidebar.classList.remove('-translate-x-full');
     const closeSidebar = () => sidebar.classList.add('-translate-x-full');
     if (openSidebarBtn) openSidebarBtn.addEventListener('click', openSidebar);
     if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
 
+    // --- About Us Modal Functionality ---
     const openModal = () => aboutUsModal.classList.remove('hidden');
     const closeModal = () => aboutUsModal.classList.add('hidden');
     if (aboutUsBtn) aboutUsBtn.addEventListener('click', openModal);
@@ -50,19 +51,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === aboutUsModal) closeModal();
     });
 
-    // --- Settings and Profile Page References ---
+    // --- Settings and Profile Page Logic ---
     const settingsPage = document.getElementById('settings-page');
     const settingsBackBtn = document.getElementById('settings-back-btn');
     const editProfilePage = document.getElementById('edit-profile-page');
     const profileBackBtn = document.getElementById('profile-back-btn');
     const editProfileLink = document.getElementById('edit-profile-link');
     const aboutLink = document.getElementById('about-link');
-    
-    // --- UPDATED: Profile Page Element References ---
-    const signOutBtn = document.getElementById('sign-out-btn');
-    const profileFirstNameDisplay = document.getElementById('profile-firstname');
-    const profileLastNameDisplay = document.getElementById('profile-lastname');
-    const profileEmailDisplay = document.getElementById('profile-email');
+
+    // --- NEW: Profile Page Element References ---
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    const profileNameDisplay = document.getElementById('profile-name-display');
+    const profileAvatarDisplay = document.getElementById('profile-avatar-display');
+    const profileUsernameInput = document.getElementById('profile-username');
+    const profileGenderSelect = document.getElementById('profile-gender');
+    const profilePhoneInput = document.getElementById('profile-phone');
+    const profileEmailInput = document.getElementById('profile-email');
+    const profileDobInput = document.getElementById('profile-dob');
 
     const showPage = (page) => {
         if (page) page.classList.remove('translate-x-full');
@@ -71,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (page) page.classList.add('translate-x-full');
     };
     
+    // MODIFIED: The settings button is now the profile avatar
     if (profileAvatarBtn) {
         profileAvatarBtn.addEventListener('click', () => showPage(settingsPage));
     }
@@ -96,58 +102,71 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-// --- REPLACED: Authentication and Profile Data Logic ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            const userProfile = await getUserProfileData();
-            updateUIForLoggedInUser(userProfile);
+    // --- NEW: Authentication UI Logic ---
+    const updateAuthUI = () => {
+        const username = localStorage.getItem('edith_username');
+        if (username) {
+            // User is logged in
+            if(signInBtn) signInBtn.classList.add('hidden');
+            if(profileAvatarBtn) profileAvatarBtn.classList.remove('hidden');
+
+            const initial = username.charAt(0).toUpperCase();
+            if(profileAvatarBtn) profileAvatarBtn.textContent = initial;
+            
+            if(mainHeading) mainHeading.textContent = `Hello, ${username}`;
+
         } else {
-            updateUIForLoggedOutUser();
+            // User is logged out
+            if(signInBtn) signInBtn.classList.remove('hidden');
+            if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
+            if(mainHeading) mainHeading.textContent = `Hello, Guest`;
         }
-    });
-    
-    function updateUIForLoggedInUser(profile) {
-        if (!profile) return;
-        const firstName = profile.firstName || 'User';
-        const initial = firstName.charAt(0).toUpperCase();
+    };
 
-        if(signInBtn) signInBtn.classList.add('hidden');
-        if(profileAvatarBtn) {
-            profileAvatarBtn.classList.remove('hidden');
-            profileAvatarBtn.textContent = initial;
-        }
-        if(mainHeading) mainHeading.textContent = `Hello, ${firstName}`;
-
-        document.querySelectorAll('.profile-name').forEach(el => el.textContent = firstName);
-        document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = initial);
-    }
-
-    function updateUIForLoggedOutUser() {
-        if(signInBtn) signInBtn.classList.remove('hidden');
-        if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
-        if(mainHeading) mainHeading.textContent = `Hello, Guest`;
-        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+    if (signInBtn) {
+        signInBtn.addEventListener('click', () => {
+            // Redirect to the login page
             window.location.href = 'login.html';
-        }
+        });
     }
+    // --- NEW: Profile Data Save/Load Logic ---
+    const saveProfileData = () => {
+        const userProfile = {
+            username: profileUsernameInput.value,
+            gender: profileGenderSelect.value,
+            phone: profilePhoneInput.value,
+            email: profileEmailInput.value,
+            dob: profileDobInput.value,
+        };
+        localStorage.setItem('edith_user_profile', JSON.stringify(userProfile));
+        alert('Profile saved!'); // Simple confirmation
+        loadProfileData(); // Reload data to update display
+        hidePage(editProfilePage); // Close the page after saving
+    };
 
-    const loadProfileData = async () => {
-        const userProfile = await getUserProfileData();
-        if(userProfile) {
-            if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = userProfile.firstName || 'Not set';
-            if(profileLastNameDisplay) profileLastNameDisplay.textContent = userProfile.lastName || 'Not set';
-            if(profileEmailDisplay) profileEmailDisplay.textContent = userProfile.email || 'Not set';
+    const loadProfileData = () => {
+        const storedProfile = localStorage.getItem('edith_user_profile');
+        if (storedProfile) {
+            const userProfile = JSON.parse(storedProfile);
+            profileUsernameInput.value = userProfile.username || '';
+            profileGenderSelect.value = userProfile.gender || '';
+            profilePhoneInput.value = userProfile.phone || '';
+            profileEmailInput.value = userProfile.email || '';
+            profileDobInput.value = userProfile.dob || '';
+
+            // Update the display name and avatar in the profile header
+            const displayName = userProfile.username || 'User';
+            const displayAvatar = displayName.charAt(0).toUpperCase() || 'S';
+            
+            // Update all instances of the name and avatar
+            document.querySelectorAll('.profile-name').forEach(el => el.textContent = displayName);
+            document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = displayAvatar);
         }
     };
-
-    const handleSignOut = () => {
-        signOut(auth).catch((error) => console.error("Sign Out Error:", error));
-    };
-
-    if (signOutBtn) signOutBtn.addEventListener('click', handleSignOut);
-    if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
-
-
+    
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', saveProfileData);
+    }
     
     // --- Chat History Logic ---
     const loadChatsFromStorage = () => {
@@ -157,13 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Save chats to browser's local storage
     const saveChatsToStorage = () => {
         localStorage.setItem('edith_all_chats', JSON.stringify(allChats));
     };
 
+    // Render the list of chats in the sidebar
     const renderChatHistoryList = () => {
-        if (!chatHistoryContainer) return;
-        chatHistoryContainer.innerHTML = '';
+        chatHistoryContainer.innerHTML = ''; // Clear existing list
         allChats.forEach(chat => {
             const chatLink = document.createElement('a');
             chatLink.href = '#';
@@ -180,13 +200,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Load a specific chat into the main window
     const loadChat = (id) => {
         const chat = allChats.find(c => c.id === id);
         if (!chat) return;
 
         currentChatId = id;
         chatContainer.innerHTML = '';
-        if(welcomeMessage) welcomeMessage.style.display = 'none';
+        welcomeMessage.style.display = 'none';
 
         chat.messages.forEach(message => {
             const html = createMessageHtml(message.role, message.parts[0].text);
@@ -196,16 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if(window.innerWidth < 768) closeSidebar();
     };
 
+    // Start a new chat session
     const startNewChat = () => {
         currentChatId = null;
-        if(chatContainer) chatContainer.innerHTML = '';
-        if(chatContainer && welcomeMessage) chatContainer.appendChild(welcomeMessage);
-        if(welcomeMessage) welcomeMessage.style.display = 'block';
-        if(queryInput) queryInput.value = '';
+        chatContainer.innerHTML = '';
+        chatContainer.appendChild(welcomeMessage);
+        welcomeMessage.style.display = 'block';
+        queryInput.value = '';
     };
 
-    if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
+    newChatBtn.addEventListener('click', startNewChat);
 
+    // Helper to create the HTML for a message bubble
     const createMessageHtml = (role, content) => {
         if (role === 'user') {
             return `
@@ -229,100 +252,114 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // --- Core Chat Logic ---
-    if (queryForm) {
-        queryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const query = queryInput.value.trim();
-            if (!query) return;
+    // --- Core Chat Logic (Modified) ---
+    queryForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = queryInput.value.trim();
+        if (!query) return;
 
-            let isFirstMessage = false;
-            if (currentChatId === null) {
-                isFirstMessage = true;
-                currentChatId = Date.now();
-                const newChat = {
-                    id: currentChatId,
-                    title: query,
-                    messages: []
-                };
-                allChats.unshift(newChat);
+        // --- NEW: History Naming Logic ---
+        let isFirstMessage = false;
+        if (currentChatId === null) {
+            // This is the first message of a new chat
+            isFirstMessage = true;
+            currentChatId = Date.now();
+            const newChat = {
+                id: currentChatId,
+                title: query, // Use the first query as the title
+                messages: []
+            };
+            allChats.unshift(newChat); // Add to the beginning of our list
+        }
+
+        // Hide welcome message
+        if (welcomeMessage) welcomeMessage.style.display = 'none';
+
+        // Display user's query
+        const userQueryHtml = createMessageHtml('user', query);
+        chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
+        
+        // Add user message to the current chat's message list
+        const currentChat = allChats.find(c => c.id === currentChatId);
+        currentChat.messages.push({ role: 'user', parts: [{ text: query }] });
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        queryInput.value = '';
+
+        // Set loading state
+        submitBtn.disabled = true;
+        btnText.textContent = 'Processing';
+        if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
+        submitBtn.insertAdjacentHTML('afterbegin', iconProcessing);
+
+        // Create a placeholder for the response
+        const responseId = `response-${Date.now()}`;
+        const responsePlaceholderHtml = `
+            <div id="${responseId}" class="response-section">
+                <div class="response-header">
+                    <div class="response-indicator"></div>
+                    Edith is typing...
+                </div>
+            </div>`;
+        chatContainer.insertAdjacentHTML('beforeend', responsePlaceholderHtml);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        try {
+            const res = await fetch(`${window.location.origin}/api/gemini`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: query,
+                    history: currentChat.messages.slice(0, -1) // Send history *before* this user message
+                }),
+            });
+
+            const responseElement = document.getElementById(responseId);
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || 'An unknown error occurred.');
             }
-
-            if (welcomeMessage) welcomeMessage.style.display = 'none';
-
-            const userQueryHtml = createMessageHtml('user', query);
-            chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
             
-            const currentChat = allChats.find(c => c.id === currentChatId);
-            currentChat.messages.push({ role: 'user', parts: [{ text: query }] });
+            const data = await res.json();
             
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            queryInput.value = '';
+            // Add model response to the current chat's message list
+            currentChat.messages.push({ role: 'model', parts: [{ text: data.response }] });
 
-            submitBtn.disabled = true;
-            btnText.textContent = 'Processing';
+            // --- NEW: Update and Save History ---
+            if (isFirstMessage) {
+                renderChatHistoryList(); // Update the sidebar if it was a new chat
+            }
+            saveChatsToStorage(); // Save all chats to local storage
+            
+            // Display successful response
+            responseElement.innerHTML = createMessageHtml('model', data.response);
+
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            const responseElement = document.getElementById(responseId);
+            responseElement.innerHTML = `
+                <div class="response-header error-header">System Alert:</div>
+                <div class="response-content error-content">${error.message}</div>`;
+        } finally {
+            // Reset loading state
+            submitBtn.disabled = false;
+            btnText.textContent = 'Send';
             if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
-            submitBtn.insertAdjacentHTML('afterbegin', iconProcessing);
-
-            const responseId = `response-${Date.now()}`;
-            const responsePlaceholderHtml = `...`; // Placeholder HTML
-            chatContainer.insertAdjacentHTML('beforeend', responsePlaceholderHtml);
+            submitBtn.insertAdjacentHTML('afterbegin', iconSend);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    });
 
-            try {
-                const res = await fetch(`${window.location.origin}/api/gemini`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        query: query,
-                        history: currentChat.messages.slice(0, -1)
-                    }),
-                });
-
-                const responseElement = document.getElementById(responseId);
-
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(errorData.error || 'An unknown error occurred.');
-                }
-                
-                const data = await res.json();
-                
-                currentChat.messages.push({ role: 'model', parts: [{ text: data.response }] });
-
-                if (isFirstMessage) {
-                    renderChatHistoryList();
-                }
-                saveChatsToStorage();
-                
-                responseElement.innerHTML = createMessageHtml('model', data.response);
-
-            } catch (error) {
-                console.error('Fetch Error:', error);
-                const responseElement = document.getElementById(responseId);
-                responseElement.innerHTML = `...`; // Error HTML
-            } finally {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send';
-                if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
-                submitBtn.insertAdjacentHTML('afterbegin', iconSend);
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
-        });
-    }
-
-    // --- Auto-resize textarea ---
-    if(queryInput) {
-        queryInput.addEventListener('input', () => {
-            queryInput.style.height = 'auto';
-            queryInput.style.height = (queryInput.scrollHeight) + 'px';
-        });
-    }
+    // Auto-resize textarea
+    queryInput.addEventListener('input', () => {
+        queryInput.style.height = 'auto';
+        queryInput.style.height = (queryInput.scrollHeight) + 'px';
+    });
 
     // --- Initial Load ---
-    updateAuthUI();
-    loadChatsFromStorage();
-    renderChatHistoryList();
-    loadProfileData();
+    updateAuthUI(); // Check login status on page load
+    loadChatsFromStorage(); // Assuming this is in your full file
+    renderChatHistoryList(); // Assuming this is in your full file
+    loadProfileData(); // Assuming this is in your full file
 });
-
