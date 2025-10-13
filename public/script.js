@@ -1,6 +1,4 @@
-// --- NEW: Firebase Imports ---
-// This imports the necessary functions from your firebaseauth.js file.
-import { auth, onAuthStateChanged, signOut, getUserProfileData } from './firebaseauth.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
     const sidebar = document.getElementById('sidebar');
