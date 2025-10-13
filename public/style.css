@@ -139,10 +139,16 @@ main {
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .chat-history-link {
-    display: block; padding: 8px; border-radius: 6px;
-    margin-bottom: 4px; color: #5A67D8; text-decoration: none;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    flex-grow: 1; /* Allows link to take up available space */
+    padding: 8px;
+    border-radius: 6px;
+    color: #5A67D8;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 .chat-history-link:hover { background-color: rgba(196, 217, 255, 0.3); }
 
@@ -358,4 +364,73 @@ main {
     background-position: right 0px center;
     padding-right: 20px;
 }
+
+/* --- NEW: Chat History Item Actions --- */
+.chat-history-item-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    border-radius: 6px;
+}
+
+.chat-history-item-container:hover {
+    background-color: rgba(196, 217, 255, 0.3);
+}
+
+.chat-options-btn {
+    background: transparent;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    font-weight: bold;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.chat-options-btn:hover {
+    background-color: rgba(90, 103, 216, 0.1);
+    color: #5A67D8;
+}
+
+.chat-options-menu {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #E2E8F0;
+    z-index: 10;
+    width: 150px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-options-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    color: #2D3748;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.chat-options-item:hover {
+    background-color: #F7FAFC;
+}
+
+.chat-options-item.delete {
+    color: #e53e3e;
+}
+
+.chat-options-item.delete:hover {
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
 
