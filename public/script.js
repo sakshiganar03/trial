@@ -1,3 +1,6 @@
+// --- Firebase Imports ---
+import { auth, onAuthStateChanged, signOut, getUserProfileData } from './firebaseauth.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
     const sidebar = document.getElementById('sidebar');
@@ -51,122 +54,106 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === aboutUsModal) closeModal();
     });
 
-    // --- Settings and Profile Page Logic ---
+    // --- Settings and Profile Page References ---
     const settingsPage = document.getElementById('settings-page');
     const settingsBackBtn = document.getElementById('settings-back-btn');
     const editProfilePage = document.getElementById('edit-profile-page');
     const profileBackBtn = document.getElementById('profile-back-btn');
     const editProfileLink = document.getElementById('edit-profile-link');
     const aboutLink = document.getElementById('about-link');
-
-    // --- NEW: Profile Page Element References ---
-    const saveProfileBtn = document.getElementById('save-profile-btn');
-    const profileNameDisplay = document.getElementById('profile-name-display');
-    const profileAvatarDisplay = document.getElementById('profile-avatar-display');
-    const profileUsernameInput = document.getElementById('profile-username');
-    const profileGenderSelect = document.getElementById('profile-gender');
-    const profilePhoneInput = document.getElementById('profile-phone');
-    const profileEmailInput = document.getElementById('profile-email');
-    const profileDobInput = document.getElementById('profile-dob');
-
-    const showPage = (page) => {
-        if (page) page.classList.remove('translate-x-full');
-    };
-    const hidePage = (page) => {
-        if (page) page.classList.add('translate-x-full');
-    };
     
-    // MODIFIED: The settings button is now the profile avatar
+    const signOutBtn = document.getElementById('sign-out-btn');
+    const profileFirstNameDisplay = document.getElementById('profile-firstname');
+    const profileLastNameDisplay = document.getElementById('profile-lastname');
+    const profileEmailDisplay = document.getElementById('profile-email');
+
+    // --- Page Navigation & Modals ---
+    const showPage = (page) => { if (page) page.classList.remove('translate-x-full'); };
+    const hidePage = (page) => { if (page) page.classList.add('translate-x-full'); };
+    
     if (profileAvatarBtn) {
-        profileAvatarBtn.addEventListener('click', () => showPage(settingsPage));
+        profileAvatarBtn.addEventListener('click', () => {
+            loadProfileData();
+            showPage(settingsPage);
+        });
     }
     if (settingsBackBtn) {
         settingsBackBtn.addEventListener('click', () => {
             hidePage(settingsPage);
-            hidePage(editProfilePage); 
+            hidePage(editProfilePage);
         });
     }
     if (editProfileLink) {
         editProfileLink.addEventListener('click', (e) => {
             e.preventDefault();
+            loadProfileData();
             showPage(editProfilePage);
         });
     }
     if (profileBackBtn) {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
-    if (aboutLink) {
-        aboutLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal();
-        });
-    }
-
-    // --- NEW: Authentication UI Logic ---
-    const updateAuthUI = () => {
-        const username = localStorage.getItem('edith_username');
-        if (username) {
-            // User is logged in
-            if(signInBtn) signInBtn.classList.add('hidden');
-            if(profileAvatarBtn) profileAvatarBtn.classList.remove('hidden');
-
-            const initial = username.charAt(0).toUpperCase();
-            if(profileAvatarBtn) profileAvatarBtn.textContent = initial;
-            
-            if(mainHeading) mainHeading.textContent = `Hello, ${username}`;
-
-        } else {
-            // User is logged out
-            if(signInBtn) signInBtn.classList.remove('hidden');
-            if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
-            if(mainHeading) mainHeading.textContent = `Hello, Guest`;
-        }
-    };
-
-    if (signInBtn) {
-        signInBtn.addEventListener('click', () => {
-            // Redirect to the login page
-            window.location.href = 'login.html';
-        });
-    }
-    // --- NEW: Profile Data Save/Load Logic ---
-    const saveProfileData = () => {
-        const userProfile = {
-            username: profileUsernameInput.value,
-            gender: profileGenderSelect.value,
-            phone: profilePhoneInput.value,
-            email: profileEmailInput.value,
-            dob: profileDobInput.value,
-        };
-        localStorage.setItem('edith_user_profile', JSON.stringify(userProfile));
-        alert('Profile saved!'); // Simple confirmation
-        loadProfileData(); // Reload data to update display
-        hidePage(editProfilePage); // Close the page after saving
-    };
-
-    const loadProfileData = () => {
-        const storedProfile = localStorage.getItem('edith_user_profile');
-        if (storedProfile) {
-            const userProfile = JSON.parse(storedProfile);
-            profileUsernameInput.value = userProfile.username || '';
-            profileGenderSelect.value = userProfile.gender || '';
-            profilePhoneInput.value = userProfile.phone || '';
-            profileEmailInput.value = userProfile.email || '';
-            profileDobInput.value = userProfile.dob || '';
-
-            // Update the display name and avatar in the profile header
-            const displayName = userProfile.username || 'User';
-            const displayAvatar = displayName.charAt(0).toUpperCase() || 'S';
-            
-            // Update all instances of the name and avatar
-            document.querySelectorAll('.profile-name').forEach(el => el.textContent = displayName);
-            document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = displayAvatar);
-        }
-    };
     
-    if (saveProfileBtn) {
-        saveProfileBtn.addEventListener('click', saveProfileData);
+    // --- Authentication and Profile Data Logic ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // User is signed in
+            const userProfile = await getUserProfileData();
+            updateUIForLoggedInUser(userProfile);
+        } else {
+            // User is signed out
+            updateUIForLoggedOutUser();
+        }
+    });
+    
+    function updateUIForLoggedInUser(profile) {
+        if (!profile) return;
+        const firstName = profile.firstName || 'User';
+        const initial = firstName.charAt(0).toUpperCase();
+
+        if(signInBtn) signInBtn.classList.add('hidden');
+        if(profileAvatarBtn) {
+            profileAvatarBtn.classList.remove('hidden');
+            profileAvatarBtn.textContent = initial;
+        }
+        if(mainHeading) mainHeading.textContent = `Hello, ${firstName}`;
+
+        document.querySelectorAll('.profile-name').forEach(el => el.textContent = firstName);
+        document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = initial);
     }
+
+    function updateUIForLoggedOutUser() {
+        if(signInBtn) signInBtn.classList.remove('hidden');
+        if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
+        if(mainHeading) mainHeading.textContent = `Hello, Guest`;
+        // Clear profile page details on sign out
+        if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = 'Not set';
+        if(profileLastNameDisplay) profileLastNameDisplay.textContent = 'Not set';
+        if(profileEmailDisplay) profileEmailDisplay.textContent = 'Not set';
+        document.querySelectorAll('.profile-name').forEach(el => el.textContent = 'User');
+        document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = 'S');
+    }
+
+    const loadProfileData = async () => {
+        const userProfile = await getUserProfileData();
+        if(userProfile) {
+            if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = userProfile.firstName || 'Not set';
+            if(profileLastNameDisplay) profileLastNameDisplay.textContent = userProfile.lastName || 'Not set';
+            if(profileEmailDisplay) profileEmailDisplay.textContent = userProfile.email || 'Not set';
+        }
+    };
+
+    const handleSignOut = () => {
+        signOut(auth).catch((error) => console.error("Sign Out Error:", error));
+    };
+
+    if (signOutBtn) signOutBtn.addEventListener('click', () => {
+        hidePage(editProfilePage);
+        hidePage(settingsPage);
+        handleSignOut();
+    });
+
+    if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
     
     // --- Chat History Logic ---
     const loadChatsFromStorage = () => {
@@ -358,8 +345,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initial Load ---
-    updateAuthUI(); // Check login status on page load
+    //updateAuthUI(); // Check login status on page load
     loadChatsFromStorage(); // Assuming this is in your full file
     renderChatHistoryList(); // Assuming this is in your full file
-    loadProfileData(); // Assuming this is in your full file
+    //loadProfileData(); // Assuming this is in your full file
 });
