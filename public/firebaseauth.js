@@ -8,19 +8,7 @@ import {
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-    getFirestore, 
-    setDoc, 
-    doc, 
-    getDoc,
-    collection,
-    addDoc,
-    getDocs,
-    updateDoc,
-    deleteDoc,
-    query,
-    orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // IMPORTANT: Replace with your actual Firebase config object
 const firebaseConfig = {
@@ -174,70 +162,6 @@ async function getUserProfileData() {
     return null; // No user is signed in
 }
 
-
-// ===========================================
-// --- NEW: CHAT HISTORY FIRESTORE FUNCTIONS ---
-// ===========================================
-
-// Function to get all chats for a specific user from Firestore
-async function loadChatsFromFirestore() {
-    const user = auth.currentUser;
-    if (!user) return []; // No user, no chats
-
-    const chatsRef = collection(db, "users", user.uid, "chats");
-    const q = query(chatsRef, orderBy("timestamp", "desc")); // Order by most recent
-    const querySnapshot = await getDocs(q);
-    
-    const chats = [];
-    querySnapshot.forEach((doc) => {
-        chats.push({ docId: doc.id, ...doc.data() });
-    });
-    return chats;
-}
-
-// Function to save a new chat to Firestore
-async function saveNewChatToFirestore(chat) {
-    const user = auth.currentUser;
-    if (!user) return null;
-
-    try {
-        const chatsRef = collection(db, "users", user.uid, "chats");
-        // Add a timestamp for ordering
-        const docRef = await addDoc(chatsRef, { ...chat, timestamp: new Date() });
-        return docRef.id; // Return the new document ID
-    } catch (e) {
-        console.error("Error adding document: ", e);
-        return null;
-    }
-}
-
-// Function to update an existing chat in Firestore (e.g., messages or title)
-async function updateChatInFirestore(chatDocId, updatedChatData) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    const chatRef = doc(db, "users", user.uid, "chats", chatDocId);
-    await updateDoc(chatRef, updatedChatData);
-}
-
-// Function to delete a chat from Firestore
-async function deleteChatFromFirestore(chatDocId) {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    await deleteDoc(doc(db, "users", user.uid, "chats", chatDocId));
-}
-
-
 // --- EXPORTS ---
-// We export the new chat functions along with the existing auth functions.
-export { 
-    auth, 
-    onAuthStateChanged, 
-    signOut, 
-    getUserProfileData,
-    loadChatsFromFirestore,
-    saveNewChatToFirestore,
-    updateChatInFirestore,
-    deleteChatFromFirestore
-};
+// We export the necessary services and functions for other scripts to use.
+export { auth, onAuthStateChanged, signOut, getUserProfileData };
