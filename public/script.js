@@ -61,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!profile) return;
         const firstName = profile.firstName || 'User';
         const initial = firstName.charAt(0).toUpperCase();
-
         if (signInBtn) signInBtn.classList.add('hidden');
         if (profileAvatarBtn) {
             profileAvatarBtn.classList.remove('hidden');
@@ -76,13 +75,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (signInBtn) signInBtn.classList.remove('hidden');
         if (profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
         if (mainHeading) mainHeading.textContent = `Hello, Guest`;
-        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
-             window.location.href = 'login.html';
-        }
     }
 
     const handleSignOut = () => {
-        signOut(auth).catch((error) => console.error("Sign Out Error:", error));
+        signOut(auth).then(() => {
+            window.location.href = 'login.html';
+        }).catch((error) => console.error("Sign Out Error:", error));
     };
 
     // --- Page Navigation & UI Event Listeners ---
@@ -118,6 +116,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profileBackBtn) {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
+    
+    async function loadProfileData() {
+        const userProfile = await getUserProfileData();
+        if(userProfile) {
+            if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = userProfile.firstName || 'Not set';
+            if(profileLastNameDisplay) profileLastNameDisplay.textContent = userProfile.lastName || 'Not set';
+            if(profileEmailDisplay) profileEmailDisplay.textContent = userProfile.email || 'Not set';
+        }
+    };
     
     // --- Chat History Actions ---
     const handleRenameChat = (chatId, chatLinkElement) => {
@@ -166,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const optionsBtn = document.createElement('button');
             optionsBtn.className = 'chat-options-btn';
             optionsBtn.innerHTML = '...';
+
             chatLink.addEventListener('click', (e) => { e.preventDefault(); loadChat(chat.docId); });
             optionsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -192,15 +200,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const chat = allChats.find(c => c.docId === docId);
         if (!chat) return;
         currentChatId = docId;
-        chatContainer.innerHTML = '';
+        if(chatContainer) chatContainer.innerHTML = '';
         if (welcomeMessage) welcomeMessage.style.display = 'none';
         if (chat.messages) {
             chat.messages.forEach(message => {
                 const html = createMessageHtml(message.role, message.parts[0].text);
-                chatContainer.insertAdjacentHTML('beforeend', html);
+                if(chatContainer) chatContainer.insertAdjacentHTML('beforeend', html);
             });
         }
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+        if(chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
         if (window.innerWidth < 768 && sidebar) sidebar.classList.add('-translate-x-full');
     };
 
