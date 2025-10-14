@@ -1,5 +1,15 @@
 // --- Firebase Imports ---
-import { auth, onAuthStateChanged, signOut, getUserProfileData } from './firebaseauth.js';
+// This ensures the script can communicate with your firebaseauth.js file.
+import {
+    auth,
+    onAuthStateChanged,
+    signOut,
+    getUserProfileData,
+    loadChatsFromFirestore,
+    saveNewChatToFirestore,
+    updateChatInFirestore,
+    deleteChatFromFirestore
+} from './firebaseauth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
@@ -11,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.getElementById('close-modal-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
     const chatHistoryContainer = document.getElementById('chat-history-container');
-    
     const queryForm = document.getElementById('query-form');
     const queryInput = document.getElementById('query-input');
     const submitBtn = document.getElementById('submit-btn');
@@ -19,58 +28,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.getElementById('chat-container');
     const welcomeMessage = document.getElementById('welcome-message');
     const mainHeading = document.querySelector('.main-heading');
-
-    // --- NEW: Authentication UI References ---
     const signInBtn = document.getElementById('sign-in-btn');
     const profileAvatarBtn = document.getElementById('profile-avatar-btn');
-
-    // --- State Management ---
-    let allChats = []; // Holds all chat sessions {id, title, messages}
-    let currentChatId = null; // The ID of the currently active chat
-
-    // --- Icon Definitions ---
-    const iconSend = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
-    const iconProcessing = `<div class="spinner"></div>`;
-    
-    // Set initial button icon
-    if(submitBtn && btnText){
-        if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
-        submitBtn.insertAdjacentHTML('afterbegin', iconSend);
-        btnText.textContent = 'Send';
-    }
-
-    // --- Sidebar Toggle Functionality ---
-    const openSidebar = () => sidebar.classList.remove('-translate-x-full');
-    const closeSidebar = () => sidebar.classList.add('-translate-x-full');
-    if (openSidebarBtn) openSidebarBtn.addEventListener('click', openSidebar);
-    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-
-    // --- About Us Modal Functionality ---
-    const openModal = () => aboutUsModal.classList.remove('hidden');
-    const closeModal = () => aboutUsModal.classList.add('hidden');
-    if (aboutUsBtn) aboutUsBtn.addEventListener('click', openModal);
-    if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
-    if (aboutUsModal) aboutUsModal.addEventListener('click', (e) => {
-        if (e.target === aboutUsModal) closeModal();
-    });
-
-    // --- Settings and Profile Page References ---
     const settingsPage = document.getElementById('settings-page');
     const settingsBackBtn = document.getElementById('settings-back-btn');
     const editProfilePage = document.getElementById('edit-profile-page');
     const profileBackBtn = document.getElementById('profile-back-btn');
     const editProfileLink = document.getElementById('edit-profile-link');
     const aboutLink = document.getElementById('about-link');
-    
     const signOutBtn = document.getElementById('sign-out-btn');
     const profileFirstNameDisplay = document.getElementById('profile-firstname');
     const profileLastNameDisplay = document.getElementById('profile-lastname');
     const profileEmailDisplay = document.getElementById('profile-email');
 
-    // --- Page Navigation & Modals ---
+    // --- State Management ---
+    let allChats = [];
+    let currentChatId = null; // Will store the Firestore document ID
+
+    // --- Authentication Logic ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userProfile = await getUserProfileData();
+            updateUIForLoggedInUser(userProfile);
+            allChats = await loadChatsFromFirestore();
+            renderChatHistoryList();
+        } else {
+            updateUIForLoggedOutUser();
+        }
+    });
+
+    function updateUIForLoggedInUser(profile) {
+        if (!profile) return;
+        const firstName = profile.firstName || 'User';
+        const initial = firstName.charAt(0).toUpperCase();
+
+        if (signInBtn) signInBtn.classList.add('hidden');
+        if (profileAvatarBtn) {
+            profileAvatarBtn.classList.remove('hidden');
+            profileAvatarBtn.textContent = initial;
+        }
+        if (mainHeading) mainHeading.textContent = `Hello, ${firstName}`;
+        document.querySelectorAll('.profile-name').forEach(el => el.textContent = firstName);
+        document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = initial);
+    }
+
+    function updateUIForLoggedOutUser() {
+        if (signInBtn) signInBtn.classList.remove('hidden');
+        if (profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
+        if (mainHeading) mainHeading.textContent = `Hello, Guest`;
+        if (window.location.pathname.endsWith('index.html') || window.location.pathname === '/') {
+             window.location.href = 'login.html';
+        }
+    }
+
+    const handleSignOut = () => {
+        signOut(auth).catch((error) => console.error("Sign Out Error:", error));
+    };
+
+    // --- Page Navigation & UI Event Listeners ---
     const showPage = (page) => { if (page) page.classList.remove('translate-x-full'); };
     const hidePage = (page) => { if (page) page.classList.add('translate-x-full'); };
-    
+
+    if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
+    if (signOutBtn) signOutBtn.addEventListener('click', handleSignOut);
+    if (openSidebarBtn) openSidebarBtn.addEventListener('click', () => sidebar.classList.remove('-translate-x-full'));
+    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', () => sidebar.classList.add('-translate-x-full'));
+    if (aboutUsBtn) aboutUsBtn.addEventListener('click', () => aboutUsModal.classList.remove('hidden'));
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => aboutUsModal.classList.add('hidden'));
+
     if (profileAvatarBtn) {
         profileAvatarBtn.addEventListener('click', () => {
             loadProfileData();
@@ -94,273 +119,134 @@ document.addEventListener('DOMContentLoaded', () => {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
     
-    // --- Authentication and Profile Data Logic ---
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            // User is signed in
-            const userProfile = await getUserProfileData();
-            updateUIForLoggedInUser(userProfile);
-            loadChatsFromStorage(); // Load user-specific chats
-            renderChatHistoryList();
-        } else {
-            // User is signed out
-            updateUIForLoggedOutUser();
-        }
-    });
-    
-    function updateUIForLoggedInUser(profile) {
-        if (!profile) return;
-        const firstName = profile.firstName || 'User';
-        const initial = firstName.charAt(0).toUpperCase();
-
-        if(signInBtn) signInBtn.classList.add('hidden');
-        if(profileAvatarBtn) {
-            profileAvatarBtn.classList.remove('hidden');
-            profileAvatarBtn.textContent = initial;
-        }
-        if(mainHeading) mainHeading.textContent = `Hello, ${firstName}`;
-
-        document.querySelectorAll('.profile-name').forEach(el => el.textContent = firstName);
-        document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = initial);
-    }
-
-    function updateUIForLoggedOutUser() {
-        if(signInBtn) signInBtn.classList.remove('hidden');
-        if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
-        if(mainHeading) mainHeading.textContent = `Hello, Guest`;
-        // Clear profile page details on sign out
-        if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = 'Not set';
-        if(profileLastNameDisplay) profileLastNameDisplay.textContent = 'Not set';
-        if(profileEmailDisplay) profileEmailDisplay.textContent = 'Not set';
-        document.querySelectorAll('.profile-name').forEach(el => el.textContent = 'User');
-        document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = 'S');
-    }
-
-    const loadProfileData = async () => {
-        const userProfile = await getUserProfileData();
-        if(userProfile) {
-            if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = userProfile.firstName || 'Not set';
-            if(profileLastNameDisplay) profileLastNameDisplay.textContent = userProfile.lastName || 'Not set';
-            if(profileEmailDisplay) profileEmailDisplay.textContent = userProfile.email || 'Not set';
-        }
-    };
-
-    const handleSignOut = () => {
-        signOut(auth).catch((error) => console.error("Sign Out Error:", error));
-    };
-
-    if (signOutBtn) signOutBtn.addEventListener('click', () => {
-        hidePage(editProfilePage);
-        hidePage(settingsPage);
-        handleSignOut();
-    });
-
-    if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
-    
-       // --- Chat History Logic (UPDATED) ---
-    const loadChatsFromStorage = () => {
-        const user = auth.currentUser;
-        if (!user) return;
-        const storedChats = localStorage.getItem(`edith_all_chats_${user.uid}`);
-        if (storedChats) {
-            allChats = JSON.parse(storedChats);
-        } else {
-            allChats = [];
-        }
-    };
-
-    const saveChatsToStorage = () => {
-        const user = auth.currentUser;
-        if (!user) return;
-        localStorage.setItem(`edith_all_chats_${user.uid}`, JSON.stringify(allChats));
-    };
-
-    // --- NEW: Chat Action Functions ---
-    const handleRenameChat = (chatId) => {
-        const chat = allChats.find(c => c.id === chatId);
+    // --- Chat History Actions ---
+    const handleRenameChat = (chatId, chatLinkElement) => {
+        const chat = allChats.find(c => c.docId === chatId);
         if (!chat) return;
-        
-        const newTitle = prompt("Enter a new name for this chat:", chat.title);
-        if (newTitle && newTitle.trim() !== "") {
-            chat.title = newTitle.trim();
-            saveChatsToStorage();
-            renderChatHistoryList();
-        }
-    };
-
-    const handleArchiveChat = (chatId) => {
-        const chat = allChats.find(c => c.id === chatId);
-        if (!chat) return;
-        
-        // This is a simple implementation. You could add a dedicated "Archived" view later.
-        chat.isArchived = true; 
-        saveChatsToStorage();
-        renderChatHistoryList(); // Re-render to hide the archived chat
-        if (currentChatId === chatId) {
-            startNewChat(); // If we archived the active chat, start a new one
-        }
-    };
-
-    const handleDeleteChat = (chatId) => {
-        if (confirm("Are you sure you want to delete this chat?")) {
-            allChats = allChats.filter(c => c.id !== chatId);
-            saveChatsToStorage();
-            renderChatHistoryList();
-            if (currentChatId === chatId) {
-                startNewChat(); // If we deleted the active chat, start a new one
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = chat.title;
+        input.className = 'chat-history-rename-input';
+        chatLinkElement.replaceWith(input);
+        input.focus();
+        input.select();
+        const saveRename = async () => {
+            const newTitle = input.value.trim();
+            if (newTitle && newTitle !== chat.title) {
+                chat.title = newTitle;
+                await updateChatInFirestore(chatId, { title: newTitle });
             }
+            renderChatHistoryList();
+        };
+        input.addEventListener('blur', saveRename);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveRename(); });
+    };
+
+    const handleDeleteChat = async (chatId) => {
+        if (confirm("Are you sure you want to permanently delete this chat?")) {
+            await deleteChatFromFirestore(chatId);
+            allChats = allChats.filter(c => c.docId !== chatId);
+            renderChatHistoryList();
+            if (currentChatId === chatId) startNewChat();
         }
     };
     
-    // This closes any open menu if you click elsewhere on the page
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.chat-history-item-container')) {
-            document.querySelectorAll('.chat-options-menu').forEach(menu => {
-                menu.classList.add('hidden');
-            });
-        }
-    });
-
-    // --- UPDATED: Render the list of chats in the sidebar ---
+    // --- UI Rendering ---
     const renderChatHistoryList = () => {
         if (!chatHistoryContainer) return;
         chatHistoryContainer.innerHTML = '';
-        
-        const activeChats = allChats.filter(chat => !chat.isArchived);
-
-        activeChats.forEach(chat => {
+        allChats.forEach(chat => {
             const container = document.createElement('div');
             container.className = 'chat-history-item-container';
-
             const chatLink = document.createElement('a');
             chatLink.href = '#';
             chatLink.className = 'chat-history-link';
             chatLink.textContent = chat.title.length > 20 ? chat.title.substring(0, 17) + '...' : chat.title;
-            chatLink.dataset.id = chat.id;
-            chatLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                loadChat(chat.id);
-            });
-
+            chatLink.dataset.id = chat.docId;
             const optionsBtn = document.createElement('button');
             optionsBtn.className = 'chat-options-btn';
             optionsBtn.innerHTML = '...';
+            chatLink.addEventListener('click', (e) => { e.preventDefault(); loadChat(chat.docId); });
             optionsBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent the link click event
-                
-                // Close any other open menus first
+                e.stopPropagation();
                 document.querySelectorAll('.chat-options-menu').forEach(m => m.remove());
-
                 const menu = document.createElement('div');
                 menu.className = 'chat-options-menu';
-                menu.innerHTML = `
-                    <a href="#" class="chat-options-item" data-action="rename">Rename</a>
-                    <a href="#" class="chat-options-item" data-action="archive">Archive</a>
-                    <a href="#" class="chat-options-item delete" data-action="delete">Delete</a>
-                `;
+                menu.innerHTML = `<a href="#" class="chat-options-item" data-action="rename">Rename</a><a href="#" class="chat-options-item delete" data-action="delete">Delete</a>`;
                 container.appendChild(menu);
-                
-                // Add event listeners to the new menu items
                 menu.addEventListener('click', (menuEvent) => {
+                    menuEvent.stopPropagation();
                     const action = menuEvent.target.dataset.action;
-                    if (action === 'rename') handleRenameChat(chat.id);
-                    if (action === 'archive') handleArchiveChat(chat.id);
-                    if (action === 'delete') handleDeleteChat(chat.id);
-                    menu.remove(); // Close menu after action
+                    if (action === 'rename') handleRenameChat(chat.docId, chatLink);
+                    if (action === 'delete') handleDeleteChat(chat.docId);
+                    menu.remove();
                 });
             });
-
             container.appendChild(chatLink);
             container.appendChild(optionsBtn);
             chatHistoryContainer.appendChild(container);
         });
     };
 
-    // Load a specific chat into the main window
-    const loadChat = (id) => {
-        const chat = allChats.find(c => c.id === id);
+    const loadChat = (docId) => {
+        const chat = allChats.find(c => c.docId === docId);
         if (!chat) return;
-
-        currentChatId = id;
+        currentChatId = docId;
         chatContainer.innerHTML = '';
-        welcomeMessage.style.display = 'none';
-
-        chat.messages.forEach(message => {
-            const html = createMessageHtml(message.role, message.parts[0].text);
-            chatContainer.insertAdjacentHTML('beforeend', html);
-        });
+        if (welcomeMessage) welcomeMessage.style.display = 'none';
+        if (chat.messages) {
+            chat.messages.forEach(message => {
+                const html = createMessageHtml(message.role, message.parts[0].text);
+                chatContainer.insertAdjacentHTML('beforeend', html);
+            });
+        }
         chatContainer.scrollTop = chatContainer.scrollHeight;
-        if(window.innerWidth < 768) closeSidebar();
+        if (window.innerWidth < 768 && sidebar) sidebar.classList.add('-translate-x-full');
     };
 
-    // Start a new chat session
+    const createMessageHtml = (role, content) => {
+        const roleDisplay = role === 'user' ? 'You' : 'EDITH Response';
+        const style = role === 'user' ? 'style="border-left-color: #5A67D8; background: rgba(90, 103, 216, 0.1);"' : '';
+        const indicator = role === 'model' ? '<div class="response-indicator" style="background: #68D391;"></div>' : '';
+        return `<div class="response-section"><div class="response-header">${indicator}${roleDisplay}:</div><div class="response-content" ${style}>${content}</div></div>`;
+    };
+
     const startNewChat = () => {
         currentChatId = null;
-        chatContainer.innerHTML = '';
-        chatContainer.appendChild(welcomeMessage);
-        welcomeMessage.style.display = 'block';
-        queryInput.value = '';
+        if (chatContainer) chatContainer.innerHTML = '';
+        if (chatContainer && welcomeMessage) chatContainer.appendChild(welcomeMessage);
+        if (welcomeMessage) welcomeMessage.style.display = 'block';
+        if (queryInput) queryInput.value = '';
     };
 
-    newChatBtn.addEventListener('click', startNewChat);
+    if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
 
-    // Helper to create the HTML for a message bubble
-    const createMessageHtml = (role, content) => {
-        if (role === 'user') {
-            return `
-                <div class="response-section">
-                    <div class="response-header">You:</div>
-                    <div class="response-content" style="border-left-color: #5A67D8; background: rgba(90, 103, 216, 0.1);">
-                        ${content}
-                    </div>
-                </div>`;
-        } else { // model or error
-             return `
-                <div class="response-section">
-                    <div class="response-header">
-                        <div class="response-indicator" style="background: #68D391;"></div>
-                        EDITH Response:
-                    </div>
-                    <div class="response-content">
-                        ${content}
-                    </div>
-                </div>`;
-        }
-    };
-    
-    // --- Core Chat Logic (Modified) ---
-    queryForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const query = queryInput.value.trim();
-        if (!query) return;
+    // --- Core Chat Logic ---
+    if (queryForm) {
+        queryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = queryInput.value.trim();
+            if (!query) return;
 
-        // --- NEW: History Naming Logic ---
-        let isFirstMessage = false;
-        if (currentChatId === null) {
-            // This is the first message of a new chat
-            isFirstMessage = true;
-            currentChatId = Date.now();
-            const newChat = {
-                id: currentChatId,
-                title: query, // Use the first query as the title
-                messages: []
-            };
-            allChats.unshift(newChat); // Add to the beginning of our list
-        }
+            let isNewChat = false;
+            let activeChat;
 
-        // Hide welcome message
-        if (welcomeMessage) welcomeMessage.style.display = 'none';
+            if (currentChatId === null) {
+                isNewChat = true;
+                const newChatData = { title: query, messages: [] };
+                const newDocId = await saveNewChatToFirestore(newChatData);
+                if (!newDocId) { alert("Error: Could not create a new chat."); return; }
+                currentChatId = newDocId;
+                activeChat = { docId: newDocId, ...newChatData };
+                allChats.unshift(activeChat);
+            } else {
+                activeChat = allChats.find(c => c.docId === currentChatId);
+            }
 
-        // Display user's query
-        const userQueryHtml = createMessageHtml('user', query);
-        chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
-        
-        // Add user message to the current chat's message list
-        const currentChat = allChats.find(c => c.id === currentChatId);
-        currentChat.messages.push({ role: 'user', parts: [{ text: query }] });
-        
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        queryInput.value = '';
+            if (welcomeMessage) welcomeMessage.style.display = 'none';
+            chatContainer.insertAdjacentHTML('beforeend', createMessageHtml('user', query));
+            activeChat.messages.push({ role: 'user', parts: [{ text: query }] });
+            queryInput.value = '';
 
         // Set loading state
         submitBtn.disabled = true;
