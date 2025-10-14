@@ -1,14 +1,5 @@
-// --- UPDATED: Firebase Imports ---
-import { 
-    auth, 
-    onAuthStateChanged, 
-    signOut, 
-    getUserProfileData,
-    loadChatsFromFirestore,
-    saveNewChatToFirestore,
-    updateChatInFirestore,
-    deleteChatFromFirestore
-} from './firebaseauth.js';
+// --- Firebase Imports ---
+import { auth, onAuthStateChanged, signOut, getUserProfileData } from './firebaseauth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
@@ -106,13 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Authentication and Profile Data Logic ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
+            // User is signed in
             const userProfile = await getUserProfileData();
             updateUIForLoggedInUser(userProfile);
-            // --- REPLACED ---
-            // Now loads chats from Firestore instead of localStorage
-            allChats = await loadChatsFromFirestore();
+            loadChatsFromStorage(); // Load user-specific chats
             renderChatHistoryList();
         } else {
+            // User is signed out
             updateUIForLoggedOutUser();
         }
     });
@@ -167,64 +158,77 @@ document.addEventListener('DOMContentLoaded', () => {
     if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
     
        // --- Chat History Logic (UPDATED) ---
-    const handleRenameChat = (chatId, chatLinkElement) => {
-        const chat = allChats.find(c => c.docId === chatId);
-        if (!chat) return;
-
-        // Create an input field for inline editing
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.value = chat.title;
-        input.className = 'chat-history-rename-input';
-
-        // Replace the link with the input field
-        chatLinkElement.replaceWith(input);
-        input.focus();
-        input.select();
-
-        const saveRename = async () => {
-            const newTitle = input.value.trim();
-            if (newTitle && newTitle !== chat.title) {
-                chat.title = newTitle;
-                // Update the title in Firestore
-                await updateChatInFirestore(chatId, { title: newTitle });
-            }
-            // Re-render the history list to show the link again
-            renderChatHistoryList();
-        };
-
-        input.addEventListener('blur', saveRename);
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                saveRename();
-            }
-        });
+    const loadChatsFromStorage = () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        const storedChats = localStorage.getItem(`edith_all_chats_${user.uid}`);
+        if (storedChats) {
+            allChats = JSON.parse(storedChats);
+        } else {
+            allChats = [];
+        }
     };
 
-    const handleDeleteChat = async (chatId) => {
-        if (confirm("Are you sure you want to permanently delete this chat?")) {
-            // Delete from Firestore
-            await deleteChatFromFirestore(chatId);
-            // Remove from local state
-            allChats = allChats.filter(c => c.docId !== chatId);
+    const saveChatsToStorage = () => {
+        const user = auth.currentUser;
+        if (!user) return;
+        localStorage.setItem(`edith_all_chats_${user.uid}`, JSON.stringify(allChats));
+    };
+
+    // --- NEW: Chat Action Functions ---
+    const handleRenameChat = (chatId) => {
+        const chat = allChats.find(c => c.id === chatId);
+        if (!chat) return;
+        
+        const newTitle = prompt("Enter a new name for this chat:", chat.title);
+        if (newTitle && newTitle.trim() !== "") {
+            chat.title = newTitle.trim();
+            saveChatsToStorage();
+            renderChatHistoryList();
+        }
+    };
+
+    const handleArchiveChat = (chatId) => {
+        const chat = allChats.find(c => c.id === chatId);
+        if (!chat) return;
+        
+        // This is a simple implementation. You could add a dedicated "Archived" view later.
+        chat.isArchived = true; 
+        saveChatsToStorage();
+        renderChatHistoryList(); // Re-render to hide the archived chat
+        if (currentChatId === chatId) {
+            startNewChat(); // If we archived the active chat, start a new one
+        }
+    };
+
+    const handleDeleteChat = (chatId) => {
+        if (confirm("Are you sure you want to delete this chat?")) {
+            allChats = allChats.filter(c => c.id !== chatId);
+            saveChatsToStorage();
             renderChatHistoryList();
             if (currentChatId === chatId) {
-                startNewChat();
+                startNewChat(); // If we deleted the active chat, start a new one
             }
         }
     };
     
+    // This closes any open menu if you click elsewhere on the page
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.chat-history-item-container')) {
-            document.querySelectorAll('.chat-options-menu').forEach(menu => menu.remove());
+            document.querySelectorAll('.chat-options-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
         }
     });
+
     // --- UPDATED: Render the list of chats in the sidebar ---
     const renderChatHistoryList = () => {
         if (!chatHistoryContainer) return;
         chatHistoryContainer.innerHTML = '';
         
-        allChats.forEach(chat => {
+        const activeChats = allChats.filter(chat => !chat.isArchived);
+
+        activeChats.forEach(chat => {
             const container = document.createElement('div');
             container.className = 'chat-history-item-container';
 
@@ -232,34 +236,37 @@ document.addEventListener('DOMContentLoaded', () => {
             chatLink.href = '#';
             chatLink.className = 'chat-history-link';
             chatLink.textContent = chat.title.length > 20 ? chat.title.substring(0, 17) + '...' : chat.title;
-            chatLink.dataset.id = chat.docId;
+            chatLink.dataset.id = chat.id;
             chatLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                loadChat(chat.docId);
+                loadChat(chat.id);
             });
 
             const optionsBtn = document.createElement('button');
             optionsBtn.className = 'chat-options-btn';
             optionsBtn.innerHTML = '...';
             optionsBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // Prevent the link click event
+                
+                // Close any other open menus first
                 document.querySelectorAll('.chat-options-menu').forEach(m => m.remove());
 
                 const menu = document.createElement('div');
                 menu.className = 'chat-options-menu';
-                // --- REMOVED "Archive" option ---
                 menu.innerHTML = `
                     <a href="#" class="chat-options-item" data-action="rename">Rename</a>
+                    <a href="#" class="chat-options-item" data-action="archive">Archive</a>
                     <a href="#" class="chat-options-item delete" data-action="delete">Delete</a>
                 `;
                 container.appendChild(menu);
                 
+                // Add event listeners to the new menu items
                 menu.addEventListener('click', (menuEvent) => {
-                    menuEvent.stopPropagation();
                     const action = menuEvent.target.dataset.action;
-                    if (action === 'rename') handleRenameChat(chat.docId, chatLink);
-                    if (action === 'delete') handleDeleteChat(chat.docId);
-                    menu.remove();
+                    if (action === 'rename') handleRenameChat(chat.id);
+                    if (action === 'archive') handleArchiveChat(chat.id);
+                    if (action === 'delete') handleDeleteChat(chat.id);
+                    menu.remove(); // Close menu after action
                 });
             });
 
@@ -270,31 +277,29 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Load a specific chat into the main window
-
-    const loadChat = (docId) => {
-        const chat = allChats.find(c => c.docId === docId);
+    const loadChat = (id) => {
+        const chat = allChats.find(c => c.id === id);
         if (!chat) return;
 
-        currentChatId = docId;
+        currentChatId = id;
         chatContainer.innerHTML = '';
-        if(welcomeMessage) welcomeMessage.style.display = 'none';
+        welcomeMessage.style.display = 'none';
 
-        if (chat.messages) {
-            chat.messages.forEach(message => {
-                const html = createMessageHtml(message.role, message.parts[0].text);
-                chatContainer.insertAdjacentHTML('beforeend', html);
-            });
-        }
+        chat.messages.forEach(message => {
+            const html = createMessageHtml(message.role, message.parts[0].text);
+            chatContainer.insertAdjacentHTML('beforeend', html);
+        });
         chatContainer.scrollTop = chatContainer.scrollHeight;
         if(window.innerWidth < 768) closeSidebar();
     };
 
+    // Start a new chat session
     const startNewChat = () => {
         currentChatId = null;
-        if(chatContainer) chatContainer.innerHTML = '';
-        if(chatContainer && welcomeMessage) chatContainer.appendChild(welcomeMessage);
-        if(welcomeMessage) welcomeMessage.style.display = 'block';
-        if(queryInput) queryInput.value = '';
+        chatContainer.innerHTML = '';
+        chatContainer.appendChild(welcomeMessage);
+        welcomeMessage.style.display = 'block';
+        queryInput.value = '';
     };
 
     newChatBtn.addEventListener('click', startNewChat);
@@ -323,33 +328,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-   // --- Core Chat Logic (UPDATED FOR FIREBASE) ---
-    if (queryForm) {
-        queryForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // This is the crucial line that stops the refresh.
-            const query = queryInput.value.trim();
-            if (!query) return;
+    // --- Core Chat Logic (Modified) ---
+    queryForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = queryInput.value.trim();
+        if (!query) return;
 
-            let isNewChat = false;
-            let activeChat;
+        // --- NEW: History Naming Logic ---
+        let isFirstMessage = false;
+        if (currentChatId === null) {
+            // This is the first message of a new chat
+            isFirstMessage = true;
+            currentChatId = Date.now();
+            const newChat = {
+                id: currentChatId,
+                title: query, // Use the first query as the title
+                messages: []
+            };
+            allChats.unshift(newChat); // Add to the beginning of our list
+        }
 
-            if (currentChatId === null) {
-                isNewChat = true;
-                const newChatData = { title: query, messages: [] };
-                const newDocId = await saveNewChatToFirestore(newChatData);
-                if (!newDocId) { alert("Error: Could not create a new chat."); return; }
-                currentChatId = newDocId;
-                activeChat = { docId: newDocId, ...newChatData };
-                allChats.unshift(activeChat);
-            } else {
-                activeChat = allChats.find(c => c.docId === currentChatId);
-            }
+        // Hide welcome message
+        if (welcomeMessage) welcomeMessage.style.display = 'none';
 
-            if (welcomeMessage) welcomeMessage.style.display = 'none';
-
-            chatContainer.insertAdjacentHTML('beforeend', createMessageHtml('user', query));
-            activeChat.messages.push({ role: 'user', parts: [{ text: query }] });
-            queryInput.value = '';
+        // Display user's query
+        const userQueryHtml = createMessageHtml('user', query);
+        chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
+        
+        // Add user message to the current chat's message list
+        const currentChat = allChats.find(c => c.id === currentChatId);
+        currentChat.messages.push({ role: 'user', parts: [{ text: query }] });
+        
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        queryInput.value = '';
 
         // Set loading state
         submitBtn.disabled = true;
@@ -389,12 +400,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await res.json();
             
             // Add model response to the current chat's message list
-            activeChat.messages.push({ role: 'model', parts: [{ text: data.response }] });
-
+            currentChat.messages.push({ role: 'model', parts: [{ text: data.response }] });
 
             // --- NEW: Update and Save History ---
-            if (isNewChat) {
-                    renderChatHistoryList(); // Update the sidebar if it was a new chat
+            if (isFirstMessage) {
+                renderChatHistoryList(); // Update the sidebar if it was a new chat
             }
             saveChatsToStorage(); // Save all chats to local storage
             
@@ -425,7 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Load ---
     //updateAuthUI(); // Check login status on page load
-    //loadChatsFromStorage(); // Assuming this is in your full file
+    loadChatsFromStorage(); // Assuming this is in your full file
     renderChatHistoryList(); // Assuming this is in your full file
     //loadProfileData(); // Assuming this is in your full file
 });
