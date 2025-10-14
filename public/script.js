@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
    // --- Core Chat Logic (UPDATED FOR FIREBASE) ---
     if (queryForm) {
         queryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+            e.preventDefault(); // This is the crucial line that stops the refresh.
             const query = queryInput.value.trim();
             if (!query) return;
 
@@ -335,35 +335,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (currentChatId === null) {
                 isNewChat = true;
-                const newChatData = {
-                    title: query,
-                    messages: []
-                };
-                // Save to Firestore and get the new doc ID
+                const newChatData = { title: query, messages: [] };
                 const newDocId = await saveNewChatToFirestore(newChatData);
-                if (!newDocId) {
-                    alert("Error: Could not create a new chat.");
-                    return;
-                }
+                if (!newDocId) { alert("Error: Could not create a new chat."); return; }
                 currentChatId = newDocId;
-                // Add the new chat with its Firestore docId to our local state
                 activeChat = { docId: newDocId, ...newChatData };
                 allChats.unshift(activeChat);
             } else {
                 activeChat = allChats.find(c => c.docId === currentChatId);
             }
 
-        // Hide welcome message
-        if (welcomeMessage) welcomeMessage.style.display = 'none';
+            if (welcomeMessage) welcomeMessage.style.display = 'none';
 
-        // Display user's query
-        const userQueryHtml = createMessageHtml('user', query);
-        chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
-        
-        activeChat.messages.push({ role: 'user', parts: [{ text: query }] });
-        
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        queryInput.value = '';
+            chatContainer.insertAdjacentHTML('beforeend', createMessageHtml('user', query));
+            activeChat.messages.push({ role: 'user', parts: [{ text: query }] });
+            queryInput.value = '';
 
         // Set loading state
         submitBtn.disabled = true;
