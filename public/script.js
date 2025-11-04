@@ -1,8 +1,12 @@
-// --- Firebase Imports ---
-import { auth, onAuthStateChanged, signOut, getUserProfileData } from './firebaseauth.js';
+// --- Firebase Imports (MODIFIED) ---
+import {
+    auth, onAuthStateChanged, signOut, getUserProfileData,
+    db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy
+} from './firebaseauth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- UI Element References ---
+    // (This section is unchanged)
     const sidebar = document.getElementById('sidebar');
     const openSidebarBtn = document.getElementById('open-sidebar-btn');
     const closeSidebarBtn = document.getElementById('close-sidebar-btn');
@@ -11,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.getElementById('close-modal-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
     const chatHistoryContainer = document.getElementById('chat-history-container');
-    
     const queryForm = document.getElementById('query-form');
     const queryInput = document.getElementById('query-input');
     const submitBtn = document.getElementById('submit-btn');
@@ -19,33 +22,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatContainer = document.getElementById('chat-container');
     const welcomeMessage = document.getElementById('welcome-message');
     const mainHeading = document.querySelector('.main-heading');
-
-    // --- NEW: Authentication UI References ---
     const signInBtn = document.getElementById('sign-in-btn');
     const profileAvatarBtn = document.getElementById('profile-avatar-btn');
+    const settingsPage = document.getElementById('settings-page');
+    const settingsBackBtn = document.getElementById('settings-back-btn');
+    const editProfilePage = document.getElementById('edit-profile-page');
+    const profileBackBtn = document.getElementById('profile-back-btn');
+    const editProfileLink = document.getElementById('edit-profile-link');
+    const aboutLink = document.getElementById('about-link');
+    const signOutBtn = document.getElementById('sign-out-btn');
+    const profileFirstNameDisplay = document.getElementById('profile-firstname');
+    const profileLastNameDisplay = document.getElementById('profile-lastname');
+    const profileEmailDisplay = document.getElementById('profile-email');
 
     // --- State Management ---
     let allChats = []; // Holds all chat sessions {id, title, messages}
     let currentChatId = null; // The ID of the currently active chat
 
     // --- Icon Definitions ---
+    // (This section is unchanged)
     const iconSend = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
     const iconProcessing = `<div class="spinner"></div>`;
-    
-    // Set initial button icon
     if(submitBtn && btnText){
         if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
         submitBtn.insertAdjacentHTML('afterbegin', iconSend);
         btnText.textContent = 'Send';
     }
 
-    // --- Sidebar Toggle Functionality ---
+    // --- Sidebar & Modal Functionality ---
+    // (This section is unchanged)
     const openSidebar = () => sidebar.classList.remove('-translate-x-full');
     const closeSidebar = () => sidebar.classList.add('-translate-x-full');
     if (openSidebarBtn) openSidebarBtn.addEventListener('click', openSidebar);
     if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', closeSidebar);
-
-    // --- About Us Modal Functionality ---
     const openModal = () => aboutUsModal.classList.remove('hidden');
     const closeModal = () => aboutUsModal.classList.add('hidden');
     if (aboutUsBtn) aboutUsBtn.addEventListener('click', openModal);
@@ -54,23 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === aboutUsModal) closeModal();
     });
 
-    // --- Settings and Profile Page References ---
-    const settingsPage = document.getElementById('settings-page');
-    const settingsBackBtn = document.getElementById('settings-back-btn');
-    const editProfilePage = document.getElementById('edit-profile-page');
-    const profileBackBtn = document.getElementById('profile-back-btn');
-    const editProfileLink = document.getElementById('edit-profile-link');
-    const aboutLink = document.getElementById('about-link');
-    
-    const signOutBtn = document.getElementById('sign-out-btn');
-    const profileFirstNameDisplay = document.getElementById('profile-firstname');
-    const profileLastNameDisplay = document.getElementById('profile-lastname');
-    const profileEmailDisplay = document.getElementById('profile-email');
-
-    // --- Page Navigation & Modals ---
+    // --- Settings and Profile Page Navigation ---
+    // (This section is unchanged)
     const showPage = (page) => { if (page) page.classList.remove('translate-x-full'); };
     const hidePage = (page) => { if (page) page.classList.add('translate-x-full'); };
-    
     if (profileAvatarBtn) {
         profileAvatarBtn.addEventListener('click', () => {
             loadProfileData();
@@ -94,41 +90,48 @@ document.addEventListener('DOMContentLoaded', () => {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
     
-    // --- Authentication and Profile Data Logic ---
+    // --- Authentication and Profile Data Logic (MODIFIED) ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             // User is signed in
             const userProfile = await getUserProfileData();
             updateUIForLoggedInUser(userProfile);
-            loadChatsFromStorage(); // Load user-specific chats
+            // --- MODIFIED ---
+            // Load chats from Firestore instead of localStorage
+            await loadChatsFromFirestore(); 
             renderChatHistoryList();
         } else {
             // User is signed out
             updateUIForLoggedOutUser();
+            // --- NEW ---
+            // Clear local data on sign-out
+            allChats = [];
+            currentChatId = null;
+            renderChatHistoryList(); // Clears the sidebar
+            startNewChat(); // Resets the main chat window
         }
     });
     
+    // (updateUIForLoggedInUser function is unchanged)
     function updateUIForLoggedInUser(profile) {
         if (!profile) return;
         const firstName = profile.firstName || 'User';
         const initial = firstName.charAt(0).toUpperCase();
-
         if(signInBtn) signInBtn.classList.add('hidden');
         if(profileAvatarBtn) {
             profileAvatarBtn.classList.remove('hidden');
             profileAvatarBtn.textContent = initial;
         }
         if(mainHeading) mainHeading.textContent = `Hello, ${firstName}`;
-
         document.querySelectorAll('.profile-name').forEach(el => el.textContent = firstName);
         document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = initial);
     }
 
+    // (updateUIForLoggedOutUser function is unchanged)
     function updateUIForLoggedOutUser() {
         if(signInBtn) signInBtn.classList.remove('hidden');
         if(profileAvatarBtn) profileAvatarBtn.classList.add('hidden');
         if(mainHeading) mainHeading.textContent = `Hello, Guest`;
-        // Clear profile page details on sign out
         if(profileFirstNameDisplay) profileFirstNameDisplay.textContent = 'Not set';
         if(profileLastNameDisplay) profileLastNameDisplay.textContent = 'Not set';
         if(profileEmailDisplay) profileEmailDisplay.textContent = 'Not set';
@@ -136,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.profile-avatar').forEach(el => el.textContent = 'S');
     }
 
+    // (loadProfileData function is unchanged)
     const loadProfileData = async () => {
         const userProfile = await getUserProfileData();
         if(userProfile) {
@@ -145,74 +149,129 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // (handleSignOut function is unchanged)
     const handleSignOut = () => {
         signOut(auth).catch((error) => console.error("Sign Out Error:", error));
     };
-
     if (signOutBtn) signOutBtn.addEventListener('click', () => {
         hidePage(editProfilePage);
         hidePage(settingsPage);
         handleSignOut();
     });
-
     if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
     
-       // --- Chat History Logic (UPDATED) ---
-    const loadChatsFromStorage = () => {
+
+    // --- Chat History Logic (MODIFIED) ---
+
+    /**
+     * --- NEW FUNCTION ---
+     * Loads all chat data from the user's 'chats' subcollection in Firestore.
+     * We will store chats in users/{userId}/chats/{chatId}
+     */
+    const loadChatsFromFirestore = async () => {
         const user = auth.currentUser;
         if (!user) return;
-        const storedChats = localStorage.getItem(`edith_all_chats_${user.uid}`);
-        if (storedChats) {
-            allChats = JSON.parse(storedChats);
-        } else {
-            allChats = [];
+
+        // Create a reference to the user's 'chats' subcollection
+        // We order by 'id' (which is Date.now()) to get newest chats first
+        const chatsCollectionRef = collection(db, 'users', user.uid, 'chats');
+        const q = query(chatsCollectionRef, orderBy('id', 'desc'));
+
+        try {
+            const querySnapshot = await getDocs(q);
+            allChats = []; // Clear local cache
+            querySnapshot.forEach((doc) => {
+                // doc.data() is the chat object: {id, title, messages, ...}
+                allChats.push(doc.data());
+            });
+        } catch (error) {
+            console.error("Error loading chats from Firestore:", error);
+            allChats = []; // Reset on error
         }
     };
 
-    const saveChatsToStorage = () => {
-        const user = auth.currentUser;
-        if (!user) return;
-        localStorage.setItem(`edith_all_chats_${user.uid}`, JSON.stringify(allChats));
-    };
+    // --- (REMOVED) ---
+    // We no longer need saveChatsToStorage or the old loadChatsFromStorage
+    // const saveChatsToStorage = () => { ... }
+    // const loadChatsFromStorage = () => { ... }
 
-    // --- NEW: Chat Action Functions ---
-    const handleRenameChat = (chatId) => {
+
+    /**
+     * --- MODIFIED: Chat Action Functions ---
+     * All these functions are now 'async' and write to Firestore.
+     */
+    const handleRenameChat = async (chatId) => {
         const chat = allChats.find(c => c.id === chatId);
         if (!chat) return;
-        
+
         const newTitle = prompt("Enter a new name for this chat:", chat.title);
         if (newTitle && newTitle.trim() !== "") {
-            chat.title = newTitle.trim();
-            saveChatsToStorage();
+            chat.title = newTitle.trim(); // Update local state
+
+            // --- NEW: Update Firestore ---
+            const user = auth.currentUser;
+            if (user) {
+                try {
+                    // Use String(chatId) as the document ID
+                    const chatDocRef = doc(db, 'users', user.uid, 'chats', String(chatId));
+                    await updateDoc(chatDocRef, { title: newTitle.trim() });
+                } catch (error) {
+                    console.error("Error renaming chat:", error);
+                }
+            }
+            // --- (REMOVED) saveChatsToStorage(); ---
             renderChatHistoryList();
         }
     };
 
-    const handleArchiveChat = (chatId) => {
+    const handleArchiveChat = async (chatId) => {
         const chat = allChats.find(c => c.id === chatId);
         if (!chat) return;
+
+        chat.isArchived = true; // Update local state
+
+        // --- NEW: Update Firestore ---
+        const user = auth.currentUser;
+        if (user) {
+            try {
+                const chatDocRef = doc(db, 'users', user.uid, 'chats', String(chatId));
+                await updateDoc(chatDocRef, { isArchived: true });
+            } catch (error) {
+                console.error("Error archiving chat:", error);
+            }
+        }
         
-        // This is a simple implementation. You could add a dedicated "Archived" view later.
-        chat.isArchived = true; 
-        saveChatsToStorage();
+        // --- (REMOVED) saveChatsToStorage(); ---
         renderChatHistoryList(); // Re-render to hide the archived chat
         if (currentChatId === chatId) {
-            startNewChat(); // If we archived the active chat, start a new one
+            startNewChat();
         }
     };
 
-    const handleDeleteChat = (chatId) => {
+    const handleDeleteChat = async (chatId) => {
         if (confirm("Are you sure you want to delete this chat?")) {
-            allChats = allChats.filter(c => c.id !== chatId);
-            saveChatsToStorage();
+            
+            // --- NEW: Delete from Firestore ---
+            const user = auth.currentUser;
+            if (user) {
+                try {
+                    const chatDocRef = doc(db, 'users', user.uid, 'chats', String(chatId));
+                    await deleteDoc(chatDocRef);
+                } catch (error) {
+                    console.error("Error deleting chat:", error);
+                }
+            }
+
+            allChats = allChats.filter(c => c.id !== chatId); // Update local state
+            // --- (REMOVED) saveChatsToStorage(); ---
             renderChatHistoryList();
             if (currentChatId === chatId) {
-                startNewChat(); // If we deleted the active chat, start a new one
+                startNewChat();
             }
         }
     };
     
-    // This closes any open menu if you click elsewhere on the page
+    // (This click listener is unchanged)
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.chat-history-item-container')) {
             document.querySelectorAll('.chat-options-menu').forEach(menu => {
@@ -221,7 +280,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- UPDATED: Render the list of chats in the sidebar ---
+    // --- (Render chat list function is unchanged) ---
+    // This function just reads from the 'allChats' array, so it works perfectly.
     const renderChatHistoryList = () => {
         if (!chatHistoryContainer) return;
         chatHistoryContainer.innerHTML = '';
@@ -246,9 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
             optionsBtn.className = 'chat-options-btn';
             optionsBtn.innerHTML = '...';
             optionsBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // Prevent the link click event
+                e.stopPropagation();
                 
-                // Close any other open menus first
                 document.querySelectorAll('.chat-options-menu').forEach(m => m.remove());
 
                 const menu = document.createElement('div');
@@ -260,13 +319,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 container.appendChild(menu);
                 
-                // Add event listeners to the new menu items
                 menu.addEventListener('click', (menuEvent) => {
                     const action = menuEvent.target.dataset.action;
                     if (action === 'rename') handleRenameChat(chat.id);
                     if (action === 'archive') handleArchiveChat(chat.id);
                     if (action === 'delete') handleDeleteChat(chat.id);
-                    menu.remove(); // Close menu after action
+                    menu.remove();
                 });
             });
 
@@ -276,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Load a specific chat into the main window
+    // (loadChat function is unchanged)
     const loadChat = (id) => {
         const chat = allChats.find(c => c.id === id);
         if (!chat) return;
@@ -293,19 +351,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if(window.innerWidth < 768) closeSidebar();
     };
 
-    // Start a new chat session
+    // (startNewChat function is unchanged)
     const startNewChat = () => {
         currentChatId = null;
         chatContainer.innerHTML = '';
-        chatContainer.appendChild(welcomeMessage);
-        welcomeMessage.style.display = 'block';
+        // Check if welcomeMessage exists before appending
+        if (welcomeMessage && !chatContainer.contains(welcomeMessage)) {
+             chatContainer.appendChild(welcomeMessage);
+        }
+        if (welcomeMessage) welcomeMessage.style.display = 'block';
         queryInput.value = '';
     };
 
     newChatBtn.addEventListener('click', startNewChat);
 
-    // Helper to create the HTML for a message bubble
+    // (createMessageHtml function is unchanged)
     const createMessageHtml = (role, content) => {
+        // ... (this function is unchanged)
         if (role === 'user') {
             return `
                 <div class="response-section">
@@ -315,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>`;
         } else { // model or error
-             return `
+            return `
                 <div class="response-section">
                     <div class="response-header">
                         <div class="response-indicator" style="background: #68D391;"></div>
@@ -328,47 +390,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
-    // --- Core Chat Logic (Modified) ---
+
+    // --- Core Chat Logic (MODIFIED) ---
     queryForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // --- NEW: Check for user ---
+        const user = auth.currentUser;
+        if (!user) {
+            alert("Please sign in to start chatting.");
+            window.location.href = 'login.html';
+            return;
+        }
+
         const query = queryInput.value.trim();
         if (!query) return;
 
-        // --- NEW: History Naming Logic ---
         let isFirstMessage = false;
         if (currentChatId === null) {
-            // This is the first message of a new chat
             isFirstMessage = true;
-            currentChatId = Date.now();
+            currentChatId = Date.now(); // Use timestamp as unique ID
             const newChat = {
                 id: currentChatId,
                 title: query, // Use the first query as the title
-                messages: []
+                messages: [],
+                isArchived: false
+                // We'll add userId when saving to Firestore
             };
-            allChats.unshift(newChat); // Add to the beginning of our list
+            allChats.unshift(newChat); // Add to the beginning of our local list
+
+            // --- NEW: Create new chat in Firestore ---
+            try {
+                // Use String(currentChatId) as the document ID
+                const chatDocRef = doc(db, 'users', user.uid, 'chats', String(currentChatId));
+                // Add the userId to the object before saving
+                await setDoc(chatDocRef, { ...newChat, userId: user.uid });
+            } catch (error) {
+                console.error("Error creating new chat in Firestore:", error);
+            }
         }
 
-        // Hide welcome message
+        // (This part is unchanged)
         if (welcomeMessage) welcomeMessage.style.display = 'none';
-
-        // Display user's query
         const userQueryHtml = createMessageHtml('user', query);
         chatContainer.insertAdjacentHTML('beforeend', userQueryHtml);
         
-        // Add user message to the current chat's message list
         const currentChat = allChats.find(c => c.id === currentChatId);
         currentChat.messages.push({ role: 'user', parts: [{ text: query }] });
         
         chatContainer.scrollTop = chatContainer.scrollHeight;
         queryInput.value = '';
 
-        // Set loading state
+        // (Set loading state - unchanged)
         submitBtn.disabled = true;
         btnText.textContent = 'Processing';
         if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
         submitBtn.insertAdjacentHTML('afterbegin', iconProcessing);
-
-        // Create a placeholder for the response
         const responseId = `response-${Date.now()}`;
         const responsePlaceholderHtml = `
             <div id="${responseId}" class="response-section">
@@ -386,12 +463,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     query: query,
-                    history: currentChat.messages.slice(0, -1) // Send history *before* this user message
+                    history: currentChat.messages.slice(0, -1)
                 }),
             });
 
             const responseElement = document.getElementById(responseId);
-
             if (!res.ok) {
                 const errorData = await res.json();
                 throw new Error(errorData.error || 'An unknown error occurred.');
@@ -402,13 +478,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add model response to the current chat's message list
             currentChat.messages.push({ role: 'model', parts: [{ text: data.response }] });
 
-            // --- NEW: Update and Save History ---
+            // --- MODIFIED: Update Firestore with new message ---
+            // We update the 'messages' array in the existing doc
+            try {
+                const chatDocRef = doc(db, 'users', user.uid, 'chats', String(currentChatId));
+                await updateDoc(chatDocRef, {
+                    messages: currentChat.messages
+                });
+            } catch (error) {
+                console.error("Error saving message to Firestore:", error);
+            }
+            
+            // --- (REMOVED) saveChatsToStorage(); ---
+            
             if (isFirstMessage) {
                 renderChatHistoryList(); // Update the sidebar if it was a new chat
             }
-            saveChatsToStorage(); // Save all chats to local storage
             
-            // Display successful response
             responseElement.innerHTML = createMessageHtml('model', data.response);
 
         } catch (error) {
@@ -418,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="response-header error-header">System Alert:</div>
                 <div class="response-content error-content">${error.message}</div>`;
         } finally {
-            // Reset loading state
+            // (Reset loading state - unchanged)
             submitBtn.disabled = false;
             btnText.textContent = 'Send';
             if(submitBtn.querySelector('svg, .spinner')) submitBtn.querySelector('svg, .spinner').remove();
@@ -427,15 +513,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Auto-resize textarea
+    // (Auto-resize textarea - unchanged)
     queryInput.addEventListener('input', () => {
         queryInput.style.height = 'auto';
         queryInput.style.height = (queryInput.scrollHeight) + 'px';
     });
 
-    // --- Initial Load ---
-    //updateAuthUI(); // Check login status on page load
-    loadChatsFromStorage(); // Assuming this is in your full file
-    renderChatHistoryList(); // Assuming this is in your full file
-    //loadProfileData(); // Assuming this is in your full file
+    // --- Initial Load (MODIFIED) ---
+    // We no longer call the functions here,
+    // onAuthStateChanged will handle loading chats when the user logs in.
+    // loadChatsFromStorage(); 
+    // renderChatHistoryList();
 });
