@@ -6,7 +6,8 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     signOut,
-    onAuthStateChanged
+    onAuthStateChanged,
+    sendPasswordResetEmail // --- ADD THIS ---
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 // --- MODIFIED ---
 // Import all the Firestore functions we will need
@@ -127,25 +128,11 @@ const signInWithGoogle = () => {
         .then((result) => {
             const user = result.user;
             const firstName = user.displayName.split(' ')[0];
-            // --- NEW ---
-            // Check if user exists in Firestore, if not, create them
-            const userDocRef = doc(db, "users", user.uid);
-            getDoc(userDocRef).then(docSnap => {
-                if (!docSnap.exists()) {
-                    setDoc(userDocRef, {
-                        firstName: firstName,
-                        lastName: user.displayName.split(' ').slice(1).join(' '),
-                        email: user.email
-                    }).then(() => {
-                        redirectToChat(firstName);
-                    });
-                } else {
-                    redirectToChat(firstName);
-                }
-            });
+            redirectToChat(firstName);
         })
         .catch((error) => {
             console.error("Google Sign-In Error:", error);
+            // This is the error you are seeing. It's likely because the domain is not authorized.
             showMessage('signInMessage', 'Could not sign in with Google. Please try again.');
         });
 };
@@ -153,6 +140,30 @@ const signInWithGoogle = () => {
 if (googleSignInBtn) googleSignInBtn.addEventListener('click', signInWithGoogle);
 if (googleSignUpBtn) googleSignUpBtn.addEventListener('click', signInWithGoogle);
 
+
+// --- NEW: Forgot Password Logic ---
+const forgotPasswordLink = document.getElementById('forgot-password-link');
+if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', (event) => {
+        event.preventDefault();
+        const email = prompt("Please enter your email address to reset your password:");
+        
+        if (email) {
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    showMessage('signInMessage', 'Password reset email sent! Check your inbox.', false);
+                })
+                .catch((error) => {
+                    if (error.code === 'auth/user-not-found') {
+                        showMessage('signInMessage', 'No account found with that email address.');
+                    } else {
+                        showMessage('signInMessage', 'Error sending reset email. Please try again.');
+                    }
+                    console.error("Password Reset Error:", error);
+                });
+        }
+    });
+}
 
 // --- NEW: Function to get user profile data ---
 // This function will be exported so other scripts can use it.
