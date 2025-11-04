@@ -34,11 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileFirstNameDisplay = document.getElementById('profile-firstname');
     const profileLastNameDisplay = document.getElementById('profile-lastname');
     const profileEmailDisplay = document.getElementById('profile-email');
+    // --- NEW: Delete Modal UI References ---
+    const deleteChatModal = document.getElementById('delete-chat-modal');
+    const deleteModalText = document.getElementById('delete-modal-text');
+    const deleteModalCancelBtn = document.getElementById('delete-modal-cancel-btn');
+    const deleteModalConfirmBtn = document.getElementById('delete-modal-confirm-btn');
 
-    // --- State Management ---
+// --- State Management ---
     let allChats = []; // Holds all chat sessions {id, title, messages}
     let currentChatId = null; // The ID of the currently active chat
-
+    let chatToDeleteId = null; // --- NEW: Stores the chat ID being confirmed for deletion
     // --- Icon Definitions ---
     // (This section is unchanged)
     const iconSend = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>`;
@@ -200,77 +205,112 @@ document.addEventListener('DOMContentLoaded', () => {
      * --- MODIFIED: Chat Action Functions ---
      * All these functions are now 'async' and write to Firestore.
      */
-    const handleRenameChat = async (chatId) => {
+// --- NEW: Helper function to save an inline rename ---
+    const saveRename = async (chatId, inputElement, originalLinkElement) => {
+        const newTitle = inputElement.value.trim();
         const chat = allChats.find(c => c.id === chatId);
-        if (!chat) return;
+        
+        // Restore the original link element in the UI
+        originalLinkElement.textContent = (newTitle || chat.title).length > 20 ? (newTitle || chat.title).substring(0, 17) + '...' : (newTitle || chat.title);
+        inputElement.replaceWith(originalLinkElement);
 
-        const newTitle = prompt("Enter a new name for this chat:", chat.title);
-        if (newTitle && newTitle.trim() !== "") {
-            chat.title = newTitle.trim(); // Update local state
+        if (newTitle && newTitle !== chat.title) {
+            chat.title = newTitle; // Update local state
 
-            // --- NEW: Update Firestore ---
+            // Update Firestore
             const user = auth.currentUser;
             if (user) {
                 try {
-                    // Use String(chatId) as the document ID
                     const chatDocRef = doc(db, 'users', user.uid, 'chats', String(chatId));
-                    await updateDoc(chatDocRef, { title: newTitle.trim() });
+                    await updateDoc(chatDocRef, { title: newTitle });
                 } catch (error) {
                     console.error("Error renaming chat:", error);
+                    // (Optional: revert title if save fails)
                 }
             }
-            // --- (REMOVED) saveChatsToStorage(); ---
-            renderChatHistoryList();
         }
     };
 
-    const handleArchiveChat = async (chatId) => {
+    // --- MODIFIED: handleRenameChat now creates an inline input ---
+    const handleRenameChat = (chatId) => {
         const chat = allChats.find(c => c.id === chatId);
         if (!chat) return;
 
-        chat.isArchived = true; // Update local state
+        // Find the specific link element in the sidebar
+        const chatLink = document.querySelector(`.chat-history-link[data-id="${chat.id}"]`);
+        if (!chatLink) return;
 
-        // --- NEW: Update Firestore ---
+        // Create an input element
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = chat.title;
+        input.className = 'chat-history-rename-input'; // Use new CSS class
+        input.spellcheck = false;
+
+        // Replace the link with the input
+        chatLink.replaceWith(input);
+        input.focus(); // Focus the input
+        input.select(); // Select all text
+
+        // Add listeners to save the new name
+        input.addEventListener('blur', () => {
+            saveRename(chatId, input, chatLink);
+        });
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                input.blur(); // Save on Enter
+            } else if (e.key === 'Escape') {
+                // On Escape, just revert without saving
+                input.value = chat.title; // Reset value
+                input.blur(); // And trigger the blur to revert
+            }
+        });
+    };
+
+
+// --- MODIFIED: handleDeleteChat now opens the modal ---
+    const handleDeleteChat = (chatId) => {
+        const chat = allChats.find(c => c.id === chatId);
+        if (!chat) return;
+
+        // Store the ID and show the modal
+        chatToDeleteId = chatId;
+        deleteModalText.textContent = `This will permanently delete "${chat.title}".`;
+        deleteChatModal.classList.remove('hidden');
+    };
+
+    // --- NEW: Add event listeners for the delete modal ---
+    deleteModalCancelBtn.addEventListener('click', () => {
+        deleteChatModal.classList.add('hidden');
+        chatToDeleteId = null; // Clear the ID
+    });
+
+    deleteModalConfirmBtn.addEventListener('click', async () => {
+        if (!chatToDeleteId) return;
+
+        const chatId = chatToDeleteId; // Get the stored ID
+        chatToDeleteId = null; // Clear the ID
+
+        // --- This is the logic from your old handleDeleteChat ---
         const user = auth.currentUser;
         if (user) {
             try {
                 const chatDocRef = doc(db, 'users', user.uid, 'chats', String(chatId));
-                await updateDoc(chatDocRef, { isArchived: true });
+                await deleteDoc(chatDocRef);
             } catch (error) {
-                console.error("Error archiving chat:", error);
+                console.error("Error deleting chat:", error);
             }
+        }
+
+        allChats = allChats.filter(c => c.id !== chatId); // Update local state
+        renderChatHistoryList(); // Update the UI
+        
+        if (currentChatId === chatId) {
+            startNewChat(); // Reset main window if active chat was deleted
         }
         
-        // --- (REMOVED) saveChatsToStorage(); ---
-        renderChatHistoryList(); // Re-render to hide the archived chat
-        if (currentChatId === chatId) {
-            startNewChat();
-        }
-    };
-
-    const handleDeleteChat = async (chatId) => {
-        if (confirm("Are you sure you want to delete this chat?")) {
-            
-            // --- NEW: Delete from Firestore ---
-            const user = auth.currentUser;
-            if (user) {
-                try {
-                    const chatDocRef = doc(db, 'users', user.uid, 'chats', String(chatId));
-                    await deleteDoc(chatDocRef);
-                } catch (error) {
-                    console.error("Error deleting chat:", error);
-                }
-            }
-
-            allChats = allChats.filter(c => c.id !== chatId); // Update local state
-            // --- (REMOVED) saveChatsToStorage(); ---
-            renderChatHistoryList();
-            if (currentChatId === chatId) {
-                startNewChat();
-            }
-        }
-    };
-    
+        deleteChatModal.classList.add('hidden'); // Hide the modal
+    });
     // (This click listener is unchanged)
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.chat-history-item-container')) {
@@ -280,13 +320,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- (Render chat list function is unchanged) ---
-    // This function just reads from the 'allChats' array, so it works perfectly.
+// --- MODIFIED: Render the list of chats in the sidebar ---
     const renderChatHistoryList = () => {
         if (!chatHistoryContainer) return;
         chatHistoryContainer.innerHTML = '';
         
-        const activeChats = allChats.filter(chat => !chat.isArchived);
+        const activeChats = allChats.filter(chat => !chat.isArchived); // Archive filter remains, just in case
 
         activeChats.forEach(chat => {
             const container = document.createElement('div');
@@ -299,6 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
             chatLink.dataset.id = chat.id;
             chatLink.addEventListener('click', (e) => {
                 e.preventDefault();
+                // --- NEW: Prevent loading if an input is active ---
+                if (e.target.tagName === 'INPUT') return;
                 loadChat(chat.id);
             });
 
@@ -312,17 +353,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const menu = document.createElement('div');
                 menu.className = 'chat-options-menu';
+                
+                // --- MODIFIED: Removed "Archive" option ---
                 menu.innerHTML = `
                     <a href="#" class="chat-options-item" data-action="rename">Rename</a>
-                    <a href="#" class="chat-options-item" data-action="archive">Archive</a>
                     <a href="#" class="chat-options-item delete" data-action="delete">Delete</a>
                 `;
                 container.appendChild(menu);
                 
                 menu.addEventListener('click', (menuEvent) => {
+                    menuEvent.preventDefault();
+                    menuEvent.stopPropagation();
                     const action = menuEvent.target.dataset.action;
                     if (action === 'rename') handleRenameChat(chat.id);
-                    if (action === 'archive') handleArchiveChat(chat.id);
+                    // --- (REMOVED) Archive action ---
                     if (action === 'delete') handleDeleteChat(chat.id);
                     menu.remove();
                 });
