@@ -451,3 +451,23 @@ main {
     background-color: rgba(196, 217, 255, 0.3);
 }
 
+/* ================================== */
+/* NEW: DELETE CONFIRMATION MODAL     */
+/* ================================== */
+.delete-modal-content {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 1.5rem; /* 24px */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #E2E8F0;
+}
+
+.btn-danger {
+    background: #e53e3e; /* Red-600 */
+    color: white;
+}
+.btn-danger:hover {
+    background: #c53030; /* Red-700 */
+    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.2);
+    transform: translateY(-2px);
+}
