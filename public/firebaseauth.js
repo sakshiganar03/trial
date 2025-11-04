@@ -1,14 +1,19 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-    getAuth, 
-    createUserWithEmailAndPassword, 
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
     signOut,
     onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// --- MODIFIED ---
+// Import all the Firestore functions we will need
+import {
+    getFirestore, setDoc, doc, getDoc,
+    collection, getDocs, updateDoc, deleteDoc, query, where, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // IMPORTANT: Replace with your actual Firebase config object
 const firebaseConfig = {
@@ -24,7 +29,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth();
-const db = getFirestore();
+const db = getFirestore(); // db is already initialized, we just need to export it
 const provider = new GoogleAuthProvider();
 
 
@@ -64,6 +69,7 @@ if (submitSignUp) {
                     lastName: lastName,
                     email: email
                 };
+                // We create the user's profile doc here
                 return setDoc(doc(db, "users", user.uid), userData)
                     .then(() => {
                         showMessage('signUpMessage', 'Account Created Successfully!', false);
@@ -93,12 +99,12 @@ if (submitSignIn) {
                 const user = userCredential.user;
                 const docRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(docRef);
-                
+
                 let username = 'User';
                 if (docSnap.exists()) {
                     username = docSnap.data().firstName;
                 }
-                
+
                 showMessage('signInMessage', 'Login is successful!', false);
                 setTimeout(() => redirectToChat(username), 1000);
             })
@@ -121,7 +127,22 @@ const signInWithGoogle = () => {
         .then((result) => {
             const user = result.user;
             const firstName = user.displayName.split(' ')[0];
-            redirectToChat(firstName);
+            // --- NEW ---
+            // Check if user exists in Firestore, if not, create them
+            const userDocRef = doc(db, "users", user.uid);
+            getDoc(userDocRef).then(docSnap => {
+                if (!docSnap.exists()) {
+                    setDoc(userDocRef, {
+                        firstName: firstName,
+                        lastName: user.displayName.split(' ').slice(1).join(' '),
+                        email: user.email
+                    }).then(() => {
+                        redirectToChat(firstName);
+                    });
+                } else {
+                    redirectToChat(firstName);
+                }
+            });
         })
         .catch((error) => {
             console.error("Google Sign-In Error:", error);
@@ -162,6 +183,23 @@ async function getUserProfileData() {
     return null; // No user is signed in
 }
 
-// --- EXPORTS ---
+// --- EXPORTS (MODIFIED) ---
 // We export the necessary services and functions for other scripts to use.
-export { auth, onAuthStateChanged, signOut, getUserProfileData };
+export {
+    auth,
+    db, // <-- Export the database instance
+    onAuthStateChanged,
+    signOut,
+    getUserProfileData,
+    // --- NEW: Export Firestore functions ---
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    setDoc,
+    updateDoc,
+    deleteDoc,
+    query,
+    where,
+    orderBy
+};
