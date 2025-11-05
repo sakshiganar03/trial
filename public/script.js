@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- (REMOVED) ---
+
     // We no longer need saveChatsToStorage or the old loadChatsFromStorage
     // const saveChatsToStorage = () => { ... }
     // const loadChatsFromStorage = () => { ... }
