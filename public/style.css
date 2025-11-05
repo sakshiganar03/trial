@@ -471,3 +471,53 @@ main {
     box-shadow: 0 5px 15px rgba(229, 62, 62, 0.2);
     transform: translateY(-2px);
 }
+
+/* --- NEW: Style for Google Button --- */
+.btn-google {
+    font-size: 1rem;
+    padding: 10px 0;
+    border-radius: 8px;
+    outline: none;
+    border: 2px solid #C4D9FF;
+    width: 100%;
+    background: transparent;
+    color: #2D3748;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-weight: bold;
+}
+.btn-google i {
+    color: #5A67D8;
+    font-size: 1.25rem;
+}
+.btn-google:hover {
+    background: rgba(248, 251, 251, 0.9);
+    border-color: #5A67D8;
+}
+
+/* --- NEW: Fix for input in modal --- */
+/* Your global style adds margin, we need to override it inside the modal */
+.delete-modal-content .input-group {
+    margin-bottom: 1rem;
+}
+/* Ensure icon is visible (it might be white on white) */
+.delete-modal-content .input-group i {
+    color: #718096; /* text-secondary */
+}
+/* Ensure input field has a border */
+.delete-modal-content .input-group input {
+    border-bottom: 2px solid #C4D9FF; /* border-color */
+    color: #2D3748; /* text-primary */
+}
+.delete-modal-content .input-group input:focus {
+    border-bottom: 2px solid #5A67D8; /* primary-color */
+}
+
+/* --- NEW: Style for message div in modal --- */
+.delete-modal-content .message-div {
+    margin-bottom: 1rem;
+}

@@ -155,6 +155,37 @@
             </div>
         </div>
     </div>
+    <div id="delete-account-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="delete-modal-content w-full max-w-sm">
+            <h3 class="text-lg font-bold text-gray-800 mb-2">Delete Account</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                This is a permanent action. To continue, please confirm your identity.
+            </p>
+            <div id="delete-account-message" class="message-div mb-4" style="display:none;"></div>
+
+            <form id="delete-password-form" style="display:none;">
+                <div class="input-group" style="margin-bottom: 1rem;">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="delete-account-password" placeholder="Enter your password" required style="border-bottom-width: 2px;">
+                </div>
+                <button type="submit" class="btn btn-danger w-full text-sm" id="delete-account-confirm-btn">Confirm & Delete Account</button>
+            </form>
+
+            <div id="delete-google-form" style="display:none;">
+                <button class="btn-google" id="delete-google-reauth-btn">
+                    <i class="fab fa-google"></i>
+                    <span>Confirm with Google</span>
+                </button>
+                <p class="text-center text-xs text-gray-500 mt-2">
+                    Click to re-authenticate before deleting.
+                </p>
+            </div>
+
+            <div class="delete-modal-buttons flex justify-end gap-3 mt-6">
+                <button id="delete-account-cancel-btn" class="btn btn-secondary px-4 py-2 text-sm">Cancel</button>
+            </div>
+        </div>
+    </div>
 
     <script type="module" src="script.js"></script>    
 </body>

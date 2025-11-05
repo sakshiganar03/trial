@@ -8,6 +8,8 @@ import {
     signOut,
     onAuthStateChanged,
     sendPasswordResetEmail,
+    confirmPasswordReset,
+    verifyPasswordResetCode,
     // --- NEW IMPORTS ---
     EmailAuthProvider,
     reauthenticateWithCredential,
@@ -124,7 +126,8 @@ if (submitSignIn) {
     });
 }
 
-// --- Google Sign-In Logic ---
+// --- Google Sign-In Logic (MODIFIED) ---
+// I've added the logic to save new Google users to Firestore
 const googleSignInBtn = document.getElementById('googleSignIn');
 const googleSignUpBtn = document.getElementById('googleSignUp');
 
@@ -133,11 +136,30 @@ const signInWithGoogle = () => {
         .then((result) => {
             const user = result.user;
             const firstName = user.displayName.split(' ')[0];
-            redirectToChat(firstName);
+
+            // --- ADDED THIS ---
+            // Check if user exists in Firestore, if not, create them
+            const userDocRef = doc(db, "users", user.uid);
+            getDoc(userDocRef).then(docSnap => {
+                if (!docSnap.exists()) {
+                    // This new user doesn't exist, create their profile
+                    setDoc(userDocRef, {
+                        firstName: firstName,
+                        lastName: user.displayName.split(' ').slice(1).join(' '),
+                        email: user.email
+                    }).then(() => {
+                        redirectToChat(firstName); // Redirect after profile is created
+                    });
+                } else {
+                    // User already exists, just redirect
+                    redirectToChat(firstName);
+                }
+            });
+            // --- END OF ADDED BLOCK ---
         })
         .catch((error) => {
             console.error("Google Sign-In Error:", error);
-            // This is the error you are seeing. It's likely because the domain is not authorized.
+            // This error is fixed by adding your Vercel domain to Firebase
             showMessage('signInMessage', 'Could not sign in with Google. Please try again.');
         });
 };
@@ -145,30 +167,29 @@ const signInWithGoogle = () => {
 if (googleSignInBtn) googleSignInBtn.addEventListener('click', signInWithGoogle);
 if (googleSignUpBtn) googleSignUpBtn.addEventListener('click', signInWithGoogle);
 
-
-// --- NEW: Forgot Password Logic ---
-const forgotPasswordLink = document.getElementById('forgot-password-link');
-if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener('click', (event) => {
-        event.preventDefault();
-        const email = prompt("Please enter your email address to reset your password:");
+// // --- NEW: Forgot Password Logic ---
+// //----const forgotPasswordLink = document.getElementById('forgot-password-link');
+// if (forgotPasswordLink) {
+//     forgotPasswordLink.addEventListener('click', (event) => {
+//         event.preventDefault();
+//         const email = prompt("Please enter your email address to reset your password:");
         
-        if (email) {
-            sendPasswordResetEmail(auth, email)
-                .then(() => {
-                    showMessage('signInMessage', 'Password reset email sent! Check your inbox.', false);
-                })
-                .catch((error) => {
-                    if (error.code === 'auth/user-not-found') {
-                        showMessage('signInMessage', 'No account found with that email address.');
-                    } else {
-                        showMessage('signInMessage', 'Error sending reset email. Please try again.');
-                    }
-                    console.error("Password Reset Error:", error);
-                });
-        }
-    });
-}
+//         if (email) {
+//             sendPasswordResetEmail(auth, email)
+//                 .then(() => {
+//                     showMessage('signInMessage', 'Password reset email sent! Check your inbox.', false);
+//                 })
+//                 .catch((error) => {
+//                     if (error.code === 'auth/user-not-found') {
+//                         showMessage('signInMessage', 'No account found with that email address.');
+//                     } else {
+//                         showMessage('signInMessage', 'Error sending reset email. Please try again.');
+//                     }
+//                     console.error("Password Reset Error:", error);
+//                 });
+//         }
+//     });
+// }
 
 // --- NEW: Function to get user profile data ---
 // This function will be exported so other scripts can use it.
@@ -218,7 +239,9 @@ export {
     query,
     where,
     orderBy,
-    sendPasswordResetEmail, // (This was from last time)
+    sendPasswordResetEmail,
+    confirmPasswordReset,
+    verifyPasswordResetCode, // (This was from last time)
     // --- NEW EXPORTS ---
     EmailAuthProvider,
     reauthenticateWithCredential,
