@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === aboutUsModal) closeModal();
     });
 
+    
     // --- Settings and Profile Page Navigation ---
     // (This section is unchanged)
     const showPage = (page) => { if (page) page.classList.remove('translate-x-full'); };
