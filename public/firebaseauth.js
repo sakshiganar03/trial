@@ -11,6 +11,7 @@ import {
     // --- NEW IMPORTS ---
     EmailAuthProvider,
     reauthenticateWithCredential,
+    reauthenticateWithPopup,
     deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 // --- MODIFIED ---
@@ -217,8 +218,10 @@ export {
     query,
     where,
     orderBy,
+    sendPasswordResetEmail, // (This was from last time)
     // --- NEW EXPORTS ---
     EmailAuthProvider,
     reauthenticateWithCredential,
+    reauthenticateWithPopup,
     deleteUser
 };
