@@ -43,6 +43,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteModalConfirmBtn = document.getElementById('delete-modal-confirm-btn');
     // --- NEW: Delete Account Button ---
     const deleteAccountBtn = document.getElementById('delete-account-btn');
+    // --- NEW: Delete ACCOUNT Modal UI References ---
+    const deleteAccountModal = document.getElementById('delete-account-modal');
+    const deleteAccountMessage = document.getElementById('delete-account-message');
+    const deletePasswordForm = document.getElementById('delete-password-form');
+    const deleteGoogleForm = document.getElementById('delete-google-form');
+    const deleteAccountPassword = document.getElementById('delete-account-password');
+    const deleteAccountConfirmBtn = document.getElementById('delete-account-confirm-btn');
+    const deleteGoogleReauthBtn = document.getElementById('delete-google-reauth-btn');
+    const deleteAccountCancelBtn = document.getElementById('delete-account-cancel-btn');
 
 // --- State Management ---
     let allChats = []; // Holds all chat sessions {id, title, messages}
@@ -568,13 +577,137 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-// --- MODIFIED: DELETE ACCOUNT FUNCTIONALITY ---
+    // --- NEW: DELETE ACCOUNT FUNCTIONALITY ---
+
+    // This is the main function that deletes all data
+    const handleDeleteAccount = async (user) => {
+        const uid = user.uid;
+        showMessage('delete-account-message', 'Deleting your data... Please wait.', false);
+        
+        try {
+            // --- Step 1: Delete all chat documents in the subcollection ---
+            const chatsCollectionRef = collection(db, 'users', uid, 'chats');
+            const chatsSnapshot = await getDocs(chatsCollectionRef);
+            const deletePromises = [];
+            chatsSnapshot.forEach(chatDoc => {
+                deletePromises.push(deleteDoc(chatDoc.ref));
+            });
+            await Promise.all(deletePromises);
+            
+            // --- Step 2: Delete the user's profile document ---
+            const userDocRef = doc(db, 'users', uid);
+            await deleteDoc(userDocRef);
+            
+            // --- Step 3: Delete the user from Firebase Auth ---
+            await deleteUser(user);
+            
+            alert("Account deleted successfully.");
+            window.location.href = 'login.html'; // Redirect to login
+            
+        } catch (error) {
+            showMessage('delete-account-message', "An error occurred. We could not delete your account. Please sign out and sign back in to try again.", true);
+            console.error("Delete account error:", error);
+        }
+    };
+
+    // --- MODIFIED: Event listener for the "Delete Account" link ---
     if (deleteAccountBtn) {
         deleteAccountBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            const user = auth.currentUser;
+            if (!user) return;
+
+            // Reset modal state
+            deleteAccountMessage.style.display = 'none';
+            deletePasswordForm.style.display = 'none';
+            deleteGoogleForm.style.display = 'none';
+            deleteAccountPassword.value = '';
+
+            // Check provider and show the correct form
+            const providerId = user.providerData[0].providerId;
+            if (providerId === 'password') {
+                deletePasswordForm.style.display = 'block';
+            } else if (providerId === 'google.com') {
+                deleteGoogleForm.style.display = 'block';
+            } else {
+                showMessage('delete-account-message', "Account deletion for this sign-in method is not supported.", true);
+            }
             
-            // This is now a simple redirect to your new custom page
-            window.location.href = 'reauth-delete.html';
+            // Show the modal
+            deleteAccountModal.classList.remove('hidden');
+        });
+    }
+
+    // --- NEW: Listeners for the Delete Account Modal ---
+
+    // Close modal button
+    if (deleteAccountCancelBtn) {
+        deleteAccountCancelBtn.addEventListener('click', () => {
+            deleteAccountModal.classList.add('hidden');
+        });
+    }
+
+    // Password form submission
+    if (deletePasswordForm) {
+        deletePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            const password = deleteAccountPassword.value;
+            if (!user || !password) {
+                showMessage('delete-account-message', "Please enter your password.", true);
+                return;
+            }
+
+            deleteAccountConfirmBtn.disabled = true;
+            deleteAccountConfirmBtn.textContent = 'Verifying...';
+
+            try {
+                // 1. Get credential & Re-authenticate
+                const credential = EmailAuthProvider.credential(user.email, password);
+                await reauthenticateWithCredential(user, credential);
+                
+                // 2. Re-auth successful, proceed to deletion
+                deleteAccountConfirmBtn.textContent = 'Deleting...';
+                await handleDeleteAccount(user);
+
+            } catch (error) {
+                if (error.code === 'auth/wrong-password') {
+                    showMessage('delete-account-message', "Wrong password. Please try again.", true);
+                } else {
+                    showMessage('delete-account-message', "An error occurred. Please try again.", true);
+                }
+                console.error("Password Re-auth error:", error);
+                deleteAccountConfirmBtn.disabled = false;
+                deleteAccountConfirmBtn.textContent = 'Confirm & Delete Account';
+            }
+        });
+    }
+
+    // Google re-auth button
+    if (deleteGoogleReauthBtn) {
+        deleteGoogleReauthBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            deleteGoogleReauthBtn.disabled = true;
+            deleteGoogleReauthBtn.textContent = 'Opening popup...';
+
+            try {
+                // 1. Re-authenticate with Google
+                await reauthenticateWithPopup(user, provider);
+                
+                // 2. Re-auth successful, proceed to deletion
+                deleteGoogleReauthBtn.textContent = 'Deleting...';
+                await handleDeleteAccount(user);
+
+            } catch (error) {
+                if (error.code !== 'auth/cancelled-popup-request') {
+                     showMessage('delete-account-message', "An error occurred during re-authentication.", true);
+                }
+                console.error("Google Re-auth error:", error);
+                deleteGoogleReauthBtn.disabled = false;
+                deleteGoogleReauthBtn.textContent = 'Confirm with Google';
+            }
         });
     }
 
