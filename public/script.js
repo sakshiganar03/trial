@@ -2,8 +2,8 @@
 import {
     auth, onAuthStateChanged, signOut, getUserProfileData,
     db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy,
-    // --- NEW IMPORTS ---
-    provider, EmailAuthProvider, reauthenticateWithCredential, deleteUser
+    // --- IMPORTS FOR DELETE FUNCTION ---
+    provider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser
 } from './firebaseauth.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -568,83 +568,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- NEW: DELETE ACCOUNT FUNCTIONALITY ---
+// --- MODIFIED: DELETE ACCOUNT FUNCTIONALITY ---
     if (deleteAccountBtn) {
-        deleteAccountBtn.addEventListener('click', async (e) => {
+        deleteAccountBtn.addEventListener('click', (e) => {
             e.preventDefault();
             
-            const user = auth.currentUser;
-            if (!user) return;
-
-            // 1. Get credentials by prompting for password or re-signing in
-            let credential;
-            const providerId = user.providerData[0].providerId;
-
-            try {
-                if (providerId === 'password') {
-                    const password = prompt("This is a permanent action.\nPlease enter your password to confirm account deletion:");
-                    if (!password) {
-                        alert("Deletion cancelled.");
-                        return;
-                    }
-                    credential = EmailAuthProvider.credential(user.email, password);
-                    // Re-authenticate with password
-                    await reauthenticateWithCredential(user, credential);
-                } else if (providerId === 'google.com') {
-                    if (!confirm("This is a permanent action. To delete your Google-linked account, you must re-authenticate with Google. Continue?")) {
-                        alert("Deletion cancelled.");
-                        return;
-                    }
-                    // Re-authenticate with Google popup
-                    await reauthenticateWithPopup(user, provider);
-                } else {
-                    alert("Account deletion for this sign-in method is not supported.");
-                    return;
-                }
-            } catch (error) {
-                if (error.code === 'auth/wrong-password') {
-                    alert("Wrong password. Deletion cancelled.");
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                     alert("Re-authentication cancelled. Deletion cancelled.");
-                } else {
-                    alert("An error occurred during re-authentication. Deletion cancelled.");
-                    console.error("Re-auth error:", error);
-                }
-                return; // Stop deletion process
-            }
-
-            // 2. User is re-authenticated. Proceed with deletion.
-            if (!confirm("You are about to permanently delete your account and all data. This cannot be undone. Are you sure?")) {
-                alert("Deletion cancelled.");
-                return;
-            }
-
-            try {
-                const uid = user.uid; // Get UID before user is deleted
-                
-                // --- Step 1: Delete all chat documents in the subcollection ---
-                const chatsCollectionRef = collection(db, 'users', uid, 'chats');
-                const chatsSnapshot = await getDocs(chatsCollectionRef);
-                const deletePromises = [];
-                chatsSnapshot.forEach(chatDoc => {
-                    deletePromises.push(deleteDoc(chatDoc.ref));
-                });
-                await Promise.all(deletePromises);
-                
-                // --- Step 2: Delete the user's profile document ---
-                const userDocRef = doc(db, 'users', uid);
-                await deleteDoc(userDocRef);
-                
-                // --- Step 3: Delete the user from Firebase Auth ---
-                await deleteUser(user);
-                
-                alert("Account deleted successfully.");
-                // onAuthStateChanged will automatically handle the sign-out UI update
-
-            } catch (error) {
-                alert("An error occurred while deleting your account. Please try again.");
-                console.error("Delete account error:", error);
-            }
+            // This is now a simple redirect to your new custom page
+            window.location.href = 'reauth-delete.html';
         });
     }
 
