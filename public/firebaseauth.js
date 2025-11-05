@@ -7,7 +7,11 @@ import {
     signInWithPopup,
     signOut,
     onAuthStateChanged,
-    sendPasswordResetEmail // --- ADD THIS ---
+    sendPasswordResetEmail,
+    // --- NEW IMPORTS ---
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 // --- MODIFIED ---
 // Import all the Firestore functions we will need
@@ -198,11 +202,11 @@ async function getUserProfileData() {
 // We export the necessary services and functions for other scripts to use.
 export {
     auth,
-    db, // <-- Export the database instance
+    db, 
+    provider, // <-- NEW EXPORT
     onAuthStateChanged,
     signOut,
     getUserProfileData,
-    // --- NEW: Export Firestore functions ---
     collection,
     doc,
     getDoc,
@@ -212,5 +216,9 @@ export {
     deleteDoc,
     query,
     where,
-    orderBy
+    orderBy,
+    // --- NEW EXPORTS ---
+    EmailAuthProvider,
+    reauthenticateWithCredential,
+    deleteUser
 };
