@@ -172,3 +172,52 @@ input:focus {
     font-size: 0.9rem;
     text-align: center;
 }
+
+/* --- NEW STYLE --- */
+/* This was from the last task for 'forgot-password.html' */
+.links.single-link {
+    justify-content: center;
+}
+.links.single-link a {
+    color: var(--primary-color);
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* --- NEW STYLES FOR DELETE PAGE --- */
+.btn.btn-danger {
+    background: #e53e3e; /* Red */
+}
+.btn.btn-danger:hover {
+    background: #c53030; /* Darker Red */
+}
+
+.btn-google {
+    font-size: 1.1rem;
+    padding: 12px 0;
+    border-radius: 8px;
+    outline: none;
+    border: 2px solid var(--border-color);
+    width: 100%;
+    background: transparent;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+.btn-google i {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+}
+.btn-google:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: var(--primary-color);
+}
+
