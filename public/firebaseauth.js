@@ -40,7 +40,6 @@ const auth = getAuth();
 const db = getFirestore(); // db is already initialized, we just need to export it
 const provider = new GoogleAuthProvider();
 
-
 // --- Helper Functions ---
 function showMessage(elementId, message, isError = true) {
     const messageElement = document.getElementById(elementId);

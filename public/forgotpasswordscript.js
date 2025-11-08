@@ -5,6 +5,7 @@ const emailInput = document.getElementById('email');
 const messageDiv = document.getElementById('resetMessage');
 const submitButton = document.getElementById('submitReset');
 
+
 // Helper to show messages
 function showMessage(message, isError = true) {
     messageDiv.textContent = message;
