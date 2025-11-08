@@ -423,6 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     newChatBtn.addEventListener('click', startNewChat);
 
+    
     // (createMessageHtml function is unchanged)
     const createMessageHtml = (role, content) => {
         // ... (this function is unchanged)
