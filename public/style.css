@@ -208,6 +208,7 @@ main {
         font-size: 1rem;
     }
 
+    
     /* --- THE NEEDFUL CHANGE IS HERE --- */
     /* This new block of styles will only apply on mobile screens */
     .page-content {
