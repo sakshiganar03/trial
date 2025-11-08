@@ -77,7 +77,6 @@ const payload = {
             return res.json({ response: "I received an empty response from the server. Please try again." });
         }
     }
-
     // Get the text from the first valid candidate
     const text = data.candidates[0]?.content?.parts?.[0]?.text;
 
