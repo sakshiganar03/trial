@@ -11,8 +11,10 @@ const port = process.env.PORT || 3000;
 app.use(express.static('public'));
 app.use(express.json());
 
-// ** THE SYSTEM PROMPT HAS BEEN UPDATED WITH FULL CAPABILITIES **
-const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your primary directive is factual accuracy across a comprehensive knowledge base, including mathematics, general topics, and language translation. Provide precise mathematical formulas, correct translations, and reliable information on all subjects. Responses must be professional, concise, and optimized for a small screen, strictly adhering to a 60-word limit. Prioritize core information to meet this constraint. If a fact cannot be confirmed with high certainty, state that you cannot verify the detail rather than providing an incorrect answer.";
+// --- CHANGE 1: UPDATED SYSTEM PROMPT ---
+// I removed the 60-word limit and told it to be "thorough and complete" 
+// while keeping the "concise" instruction for the smart-glass persona.
+const SYSTEM_PROMPT = "You are EDITH (Enhanced Defense Intelligence Terminal Hub), an AI assistant integrated into smart glasses. Your primary directive is factual accuracy across a comprehensive knowledge base, including mathematics, general topics, and language translation. Provide precise mathematical formulas, correct translations, and reliable information on all subjects. Your goal is to be helpful, so provide **thorough and complete answers.** While your responses should be concise, **do not cut off your answer or leave out critical information.** Answer the user's question fully. If a fact cannot be confirmed with high certainty, state that you cannot verify the detail rather than providing an incorrect answer.";
 
 app.post('/api/gemini', async (req, res) => {
   const { query, history } = req.body;
@@ -35,11 +37,13 @@ app.post('/api/gemini', async (req, res) => {
     { role: 'user', parts: [{ text: query }] }
   ];
 
-  // The 'systemInstruction' field has been removed from the payload.
-  const payload = {
+const payload = {
     contents: contents,
     generationConfig: {
-      maxOutputTokens: 200,
+      // --- CHANGE 2: INCREASED TOKEN LIMIT ---
+      // 200 is too low and cuts off answers. 2048 is a much safer limit
+      // that allows for full, detailed responses.
+      maxOutputTokens: 2048,
       temperature: 0.7,
     },
   };
@@ -57,12 +61,30 @@ app.post('/api/gemini', async (req, res) => {
         throw new Error(errorData.error?.message || `API request failed with status ${apiResponse.status}`);
     }
 
-    const data = await apiResponse.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+   const data = await apiResponse.json();
+
+    // --- CHANGE 3: BETTER ERROR HANDLING ---
+    // This new logic checks *why* a response might be empty (e.g., safety blocks)
+    // and gives a more useful error message.
+    
+    // Check for a safety block first
+    if (!data.candidates || data.candidates.length === 0) {
+        const blockReason = data.promptFeedback?.blockReason;
+        if (blockReason === 'SAFETY') {
+            return res.json({ response: "I cannot respond to that query as it violates my safety policies." });
+        } else {
+            // This catches other weird errors
+            return res.json({ response: "I received an empty response from the server. Please try again." });
+        }
+    }
+
+    // Get the text from the first valid candidate
+    const text = data.candidates[0]?.content?.parts?.[0]?.text;
 
     if (text) {
       res.json({ response: text });
     } else {
+      // This is now a fallback for unexpected issues
       res.json({ response: "I received a response, but it contained no content." });
     }
   } catch (error) {
