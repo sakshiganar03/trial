@@ -3,528 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VisionTech - Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --dark-bg: #121212;
-            --secondary-color: #1a1a1a;
-            --light-color: #f0f0f0;
-            --primary-color: #007bff;
-            --accent-color: #00ffc8;
-            --card-bg: #1e1e1e;
-            --image-bg: #2c2c2c;
-            --subtle-text: #bbb;
-            --hint-text: #888;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background: var(--dark-bg);
-            color: var(--light-color);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Background Image with Low Transparency */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.9)),
-                url('apple22.avif');
-            background-size: cover;
-            background-position: center;
-            z-index: -2;
-            opacity: 0.5; /* Very low transparency */
-        }
-
-        /* Floating Particles */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .particle {
-            position: absolute;
-            background: rgba(0, 255, 200, 0.5);
-            border-radius: 50%;
-            animation: floatParticle 15s infinite linear;
-        }
-
-        @keyframes floatParticle {
-            0% {
-                transform: translateY(100vh) translateX(0);
-            }
-            100% {
-                transform: translateY(-100px) translateX(100px);
-            }
-        }
-
-        .container {
-            width: 380px; /* Smaller container */
-            padding: 1.8rem; /* Reduced padding */
-            margin: 50px auto;
-            border-radius: 20px;
-            background: rgba(30, 30, 30, 0.9); /* Slightly transparent */
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 200, 0.2);
-            position: relative;
-            overflow: hidden;
-            animation: containerGlow 4s ease-in-out infinite alternate;
-            backdrop-filter: blur(5px); /* Glass effect */
-        }
-
-        @keyframes containerGlow {
-            0% {
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 255, 200, 0.2);
-            }
-            100% {
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 255, 200, 0.4);
-            }
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 24px; /* Slightly smaller */
-            font-weight: 700;
-            color: var(--accent-color);
-            margin-bottom: 1.2rem; /* Reduced margin */
-        }
-
-        .logo i {
-            font-size: 28px; /* Slightly smaller */
-        }
-
-        form {
-            margin: 0 0.5rem; /* Reduced margin */
-        }
-
-        .form-title {
-            font-size: 1.6rem; /* Slightly smaller */
-            font-weight: bold;
-            text-align: center;
-            padding: 0.8rem; /* Reduced padding */
-            margin-bottom: 0.4rem;
-            color: var(--light-color);
-        }
-
-        .input-group {
-            padding: 4% 0; /* Reduced padding */
-            position: relative;
-        }
-
-        .input-group i {
-            position: absolute;
-            color: var(--accent-color);
-            left: 0.5rem;
-            top: 1rem; /* Better alignment */
-            z-index: 1;
-        }
-
-        input {
-            color: var(--light-color);
-            width: 100%;
-            background-color: transparent;
-            border: none;
-            border-bottom: 1px solid var(--hint-text);
-            padding: 0.9rem 0 0.5rem 2.5rem; /* Better padding */
-            font-size: 15px; /* Slightly smaller */
-            transition: all 0.3s;
-        }
-
-        input:focus {
-            background-color: transparent;
-            outline: none;
-            border-bottom: 2px solid var(--accent-color);
-        }
-
-        input::placeholder {
-            color: transparent;
-        }
-
-        label {
-            color: var(--subtle-text);
-            position: absolute;
-            left: 2.5rem;
-            top: 1rem; /* Better alignment */
-            cursor: auto;
-            transition: 0.3s ease all;
-            pointer-events: none;
-            font-size: 15px; /* Slightly smaller */
-        }
-
-        input:focus ~ label,
-        input:not(:placeholder-shown) ~ label {
-            top: 0;
-            color: var(--accent-color);
-            font-size: 13px; /* Slightly smaller */
-        }
-
-        .recover {
-            text-align: right;
-            font-size: 0.85rem; /* Slightly smaller */
-            margin-bottom: 0.8rem; /* Reduced margin */
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .recover a {
-            text-decoration: none;
-            color: var(--primary-color);
-        }
-
-        .recover a:hover {
-            color: var(--accent-color);
-            text-decoration: underline;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.85rem;
-            color: var(--subtle-text);
-        }
-
-        .remember input {
-            width: auto;
-            padding: 0;
-            margin: 0;
-        }
-
-        button {
-            font-size: 1rem; /* Slightly smaller */
-            padding: 10px 0; /* Reduced padding */
-            border-radius: 50px;
-            outline: none;
-            border: none;
-            width: 100%;
-            background: var(--primary-color);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 600;
-            margin-top: 0.8rem; /* Reduced margin */
-        }
-
-        button:hover {
-            background: #0056b3;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
-        }
-
-        .or {
-            font-size: 0.9rem; /* Slightly smaller */
-            margin-top: 1.2rem; /* Reduced margin */
-            text-align: center;
-            color: var(--subtle-text);
-            position: relative;
-        }
-
-        .or:before,
-        .or:after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: var(--hint-text);
-        }
-
-        .or:before {
-            left: 0;
-        }
-
-        .or:after {
-            right: 0;
-        }
-
-        .icons {
-            text-align: center;
-            margin: 1.2rem 0; /* Reduced margin */
-        }
-
-        .icons i {
-            color: var(--primary-color);
-            padding: 0.7rem; /* Reduced padding */
-            border-radius: 50%;
-            font-size: 1.3rem; /* Slightly smaller */
-            cursor: pointer;
-            border: 2px solid var(--secondary-color);
-            margin: 0 8px; /* Reduced margin */
-            transition: 0.5s;
-            background: var(--dark-bg);
-        }
-
-        .icons i:hover {
-            background: var(--primary-color);
-            color: white;
-            border: 2px solid var(--primary-color);
-            transform: translateY(-5px);
-        }
-
-        .links {
-            display: flex;
-            justify-content: space-between;
-            align-items: center; /* Better alignment */
-            padding: 0 0.5rem; /* Reduced padding */
-            margin-top: 0.8rem; /* Reduced margin */
-            font-size: 0.85rem; /* Slightly smaller */
-        }
-
-        #signUpButton, #signInButton {
-            color: var(--primary-color);
-            border: none;
-            background-color: transparent;
-            font-size: 0.9rem; /* Slightly smaller */
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 5px 10px; /* Added padding for better click area */
-        }
-
-        #signUpButton:hover, #signInButton:hover {
-            color: var(--accent-color);
-            text-decoration: underline;
-        }
-
-        .messageDiv {
-            background: var(--primary-color);
-            color: white;
-            padding: 8px 16px; /* Reduced padding */
-            margin: 8px 0; /* Reduced margin */
-            border-radius: 5px;
-            font-size: 0.85rem; /* Slightly smaller */
-            opacity: 0;
-            animation: fadeOut 7s forwards;
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 1; }
-            70% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
-        /* Back to Home Button */
-        .back-home {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: var(--accent-color);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-            z-index: 10;
-        }
-
-        .back-home:hover {
-            color: var(--primary-color);
-            transform: translateX(-5px);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 480px) {
-            .container {
-                width: 90%;
-                padding: 1.5rem;
-            }
-            
-            .form-title {
-                font-size: 1.4rem;
-            }
-            
-            .logo {
-                font-size: 22px;
-            }
-            
-            .logo i {
-                font-size: 26px;
-            }
-        }
-    </style>
+    <title>Register & Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="loginstyle.css">
+    <script type="module" src="firebaseauth.js"></script>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
-    <a href="hukka2.html" class="back-home">
-        <i class="fas fa-arrow-left"></i> Back to Home
-    </a>
-
     <div class="container" id="signup" style="display:none;">
-        <div class="logo">
-            <i class="fas fa-glasses"></i>
-            <span>VisionTech</span>
+      <h1 class="form-title">Register</h1>
+      <form method="post" action="">
+        <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
+        <div class="input-group">
+           <i class="fas fa-user"></i>
+           <input type="text"  id="fName" placeholder="First Name" required>
+           <label for="fname">First Name</label>
         </div>
-        <h1 class="form-title">Register</h1>
-        <form method="post" action="">
-            <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="fName" placeholder="First Name" required>
-                <label for="fName">First Name</label>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-user"></i>
-                <input type="text" id="lName" placeholder="Last Name" required>
-                <label for="lName">Last Name</label>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="rEmail" placeholder="Email" required>
-                <label for="rEmail">Email</label>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="rPassword" placeholder="Password" required>
-                <label for="rPassword">Password</label>
-            </div>
-            <button class="btn" id="submitSignUp">Sign Up</button>
-        </form>
-        <p class="or">or</p>
-        <div class="icons">
-            <i class="fab fa-google"></i>
-            <i class="fab fa-facebook"></i>
-            <i class="fab fa-apple"></i>
+        <div class="input-group">
+            <i class="fas fa-user"></i>
+            <input type="text"  id="lName" placeholder="Last Name" required>
+            <label for="lName">Last Name</label>
         </div>
-        <div class="links">
-            <p>Already Have Account?</p>
-            <button id="signInButton">Sign In</button>
+        <div class="input-group">
+            <i class="fas fa-envelope"></i>
+            <input type="email"  id="rEmail" placeholder="Email" required>
+            <label for="rEmail">Email</label>
         </div>
+        <div class="input-group">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="rPassword"  placeholder="Password" required>
+            <label for="rPassword">Password</label>
+        </div>
+       <button class="btn" id="submitSignUp" >Sign Up</button>
+      </form>
+      <p class="or">
+        ----------or--------
+      </p>
+      <div class="icons">
+        <i class="fab fa-google"></i>
+        <i class="fab fa-facebook"></i>
+      </div>
+      <div class="links">
+        <p>Already Have Account ?</p>
+        <button id="signInButton">Sign In</button>
+      </div>
     </div>
 
-    <div class="container" id="signIn">
-        <div class="logo">
-            <i class="fas fa-glasses"></i>
-            <span>VisionTech</span>
-        </div>
+  <div class="container" id="signIn">
         <h1 class="form-title">Sign In</h1>
         <form method="post" action="">
-            <div id="signInMessage" class="messageDiv" style="display:none;"></div>
-            <div class="input-group">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="email" placeholder="Email" required>
-                <label for="email">Email</label>
-            </div>
-            <div class="input-group">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="password" placeholder="Password" required>
-                <label for="password">Password</label>
-            </div>
-            <div class="recover">
-                <div class="remember">
-                    <input type="checkbox" id="remember">
-                    
-                </div>
-                <a href="#">Recover Password</a>
-            </div>
-            <button class="btn" id="submitSignIn">Sign In</button>
+          <div id="signInMessage" class="messageDiv" style="display:none;"></div>
+
+          <div class="input-group">
+              <i class="fas fa-envelope"></i>
+              <input type="email"  id="email" placeholder="Email" required>
+              <label for="email">Email</label>
+          </div>
+          <div class="input-group">
+              <i class="fas fa-lock"></i>
+            <input type="password" id="password"  placeholder="Password" required>
+              <label for="password">Password</label>
+          </div>
+          <p class="recover">
+            <a href="#">Recover Password</a>
+          </p>
+         <button  class="btn"  id="submitSignIn">Sign In</button>
         </form>
-        <p class="or">or</p>
+        <p class="or">
+          ----------or--------
+        </p>
         <div class="icons">
-            <i class="fab fa-google"></i>
-            <i class="fab fa-facebook"></i>
-            <i class="fab fa-apple"></i>
+          <i class="fab fa-google"></i>
+          <i class="fab fa-facebook"></i>
         </div>
         <div class="links">
-            <p>Don't have account yet?</p>
-            <button id="signUpButton">Sign Up</button>
+          <p>Don't have account yet?</p>
+          <button id="signUpButton">Sign Up</button>
         </div>
-    </div>
-
-    <script>
-        // Create floating particles
-        function createParticles() {
-            const particlesContainer = document.getElementById('particles');
-            const particleCount = 20;
-            
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                // Random properties
-                const size = Math.random() * 8 + 4;
-                const posX = Math.random() * 100;
-                const delay = Math.random() * 15;
-                const duration = Math.random() * 10 + 15;
-                
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${posX}%`;
-                particle.style.animationDelay = `${delay}s`;
-                particle.style.animationDuration = `${duration}s`;
-                
-                particlesContainer.appendChild(particle);
-            }
-        }
-
-        // Form switching functionality
-        const signUpButton = document.getElementById('signUpButton');
-        const signInButton = document.getElementById('signInButton');
-        const signInForm = document.getElementById('signIn');
-        const signUpForm = document.getElementById('signup');
-
-        signUpButton.addEventListener('click', function() {
-            signInForm.style.display = "none";
-            signUpForm.style.display = "block";
-        });
-
-        signInButton.addEventListener('click', function() {
-            signInForm.style.display = "block";
-            signUpForm.style.display = "none";
-        });
-
-        // Form submission simulation
-        document.getElementById('submitSignIn').addEventListener('click', function(e) {
-            e.preventDefault();
-            const messageDiv = document.getElementById('signInMessage');
-            messageDiv.textContent = "Sign in successful! Redirecting...";
-            messageDiv.style.display = 'block';
-            
-            // Simulate redirect after delay
-            setTimeout(() => {
-                // In a real app, you would redirect to the dashboard
-                // window.location.href = 'dashboard.html';
-                alert("Redirecting to dashboard in a real application");
-            }, 2000);
-        });
-
-        document.getElementById('submitSignUp').addEventListener('click', function(e) {
-            e.preventDefault();
-            const messageDiv = document.getElementById('signUpMessage');
-            messageDiv.textContent = "Account created successfully!";
-            messageDiv.style.display = 'block';
-        });
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            createParticles();
-        });
-    </script>
+      </div>
+      <script src="loginscript.js"></script>
 </body>
 </html>
