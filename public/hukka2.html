@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisionTech - Smart Glasses</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --secondary-color: #1a1a1a;
+            --light-color: #f0f0f0;
+            --primary-color: #007bff;
+            --accent-color: #00ffc8;
+            --card-bg: #1e1e1e;
+            --image-bg: #2c2c2c;
+            --subtle-text: #bbb;
+            --hint-text: #888;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: var(--light-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            padding: 20px 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .logo i {
+            font-size: 32px;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 60px 0;
+            min-height: 70vh;
+        }
+
+        .hero-content {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .hero-content h1 {
+            font-size: 52px;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        .hero-content p {
+            font-size: 18px;
+            color: var(--subtle-text);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .product-image-large {
+            width: 450px;
+            height: 350px;
+            background: var(--image-bg);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            animation: imageGlow 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes imageGlow {
+            0% {
+                box-shadow: 0 0 20px rgba(0, 255, 200, 0.1);
+            }
+            100% {
+                box-shadow: 0 0 30px rgba(0, 255, 200, 0.4);
+            }
+        }
+
+        .glasses-container {
+            position: relative;
+            width: 80%;
+            height: 60%;
+            perspective: 1000px;
+        }
+
+        .glasses {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .glass-frame {
+            position: absolute;
+            width: 80%;
+            height: 50%;
+            border: 15px solid var(--accent-color);
+            border-radius: 15px;
+            top: 25%;
+            left: 10%;
+        }
+
+        .glass-lens {
+            position: absolute;
+            width: 35%;
+            height: 60%;
+            background: rgba(0, 255, 200, 0.2);
+            border-radius: 10px;
+            top: 20%;
+        }
+
+        .glass-lens.left {
+            left: 12%;
+        }
+
+        .glass-lens.right {
+            right: 12%;
+        }
+
+        .glass-bridge {
+            position: absolute;
+            width: 10%;
+            height: 10%;
+            background: var(--accent-color);
+            border-radius: 50%;
+            top: 45%;
+            left: 45%;
+        }
+
+        .glass-temple {
+            position: absolute;
+            width: 15%;
+            height: 8%;
+            background: var(--accent-color);
+            top: 45%;
+        }
+
+        .glass-temple.left {
+            left: 0;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .glass-temple.right {
+            right: 0;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotateX(5deg);
+            }
+            50% {
+                transform: translateY(-20px) rotateX(5deg);
+            }
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 80px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 50px;
+            color: var(--light-color);
+        }
+
+        .features-scroll-wrapper {
+            background: var(--secondary-color);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            color: var(--hint-text);
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .features-container {
+            display: flex;
+            overflow-x: auto;
+            gap: 30px;
+            padding: 10px 0;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            cursor: grab;
+        }
+
+        .features-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .features-container:active {
+            cursor: grabbing;
+        }
+
+        .feature-card {
+            min-width: 300px;
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 30px;
+            color: var(--light-color);
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .feature-card p {
+            color: var(--subtle-text);
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: var(--dark-bg);
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: var(--light-color);
+        }
+
+        .cta-section p {
+            font-size: 18px;
+            color: var(--subtle-text);
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cta-button:hover {
+            background: #0056b3;
+            transform: translateY(-3px);
+        }
+
+        /* Login Button */
+        #login-btn {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 200, 0.6);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #login-btn:hover {
+            background: #0056b3;
+            transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: var(--hint-text);
+            border-top: 1px solid #333;
+            margin-top: 50px;
+        }
+
+        /* Scroll indicators */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .indicator-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--hint-text);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .indicator-dot.active {
+            background: var(--accent-color);
+            transform: scale(1.2);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 50px;
+            }
+
+            .hero-content {
+                max-width: 100%;
+            }
+
+            .product-image-large {
+                width: 380px;
+                height: 280px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 40px;
+            }
+
+            .section-title {
+                font-size: 32px;
+            }
+
+            .product-image-large {
+                width: 320px;
+                height: 240px;
+            }
+
+            #login-btn {
+                padding: 15px 35px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-content h1 {
+                font-size: 32px;
+            }
+
+            .product-image-large {
+                width: 280px;
+                height: 200px;
+            }
+
+            .feature-card {
+                min-width: 260px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav class="navbar">
+                <div class="logo">
+                    <i class="fas fa-glasses"></i>
+                    <span>VisionTech</span>
+                </div>
+            </nav>
+        </header>
+
+        <section class="hero">
+            <div class="hero-content">
+                <h1>See the Future with VisionTech Smart Glasses</h1>
+                <p>Experience the world like never before with our cutting-edge smart glasses. Augmented reality, voice control, and seamless connectivity in a stylish design.</p>
+                
+            </div>
+            <div class="hero-image">
+                <div class="product-image-large">
+                    <div class="glasses-container">
+                        <div class="glasses">
+                            <div class="glass-frame"></div>
+                            <div class="glass-lens left"></div>
+                            <div class="glass-lens right"></div>
+                            <div class="glass-bridge"></div>
+                            <div class="glass-temple left"></div>
+                            <div class="glass-temple right"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features-section">
+            <h2 class="section-title">Discover Our Features</h2>
+            <div class="features-scroll-wrapper">
+                <div class="scroll-hint">← Scroll horizontally to explore more features →</div>
+                <div class="features-container" id="featuresContainer">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-vr-cardboard"></i>
+                        </div>
+                        <h3>Augmented Reality</h3>
+                        <p>Overlay digital information onto the real world for an enhanced experience in work and play.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <h3>Voice Control</h3>
+                        <p>Navigate menus, send messages, and control apps with simple voice commands.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3>High-Res Camera</h3>
+                        <p>Capture photos and record videos hands-free with our integrated 12MP camera.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <h3>Seamless Connectivity</h3>
+                        <p>Stay connected with Bluetooth 5.2, Wi-Fi 6, and 5G compatibility.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-battery-full"></i>
+                        </div>
+                        <h3>All-Day Battery</h3>
+                        <p>Up to 16 hours of continuous use with our advanced power management system.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3>Navigation</h3>
+                        <p>Get turn-by-turn directions displayed right in your field of vision.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h3>Health Monitoring</h3>
+                        <p>Track your fitness metrics and receive health insights in real-time.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <h3>Cloud Integration</h3>
+                        <p>Access your files and data from anywhere with secure cloud storage.</p>
+                    </div>
+                </div>
+                <div class="scroll-indicator" id="scrollIndicator"></div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Experience the Future?</h2>
+                <p>Join thousands of early adopters who are already transforming how they see and interact with the world.</p>
+                
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2023 VisionTech. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <button id="login-btn" onclick="window.location.href='index.html'">
+        <i class="fas fa-sign-in-alt"></i> Login
+    </button>
+
+    <script>
+        // Smooth horizontal scrolling with momentum
+        function initSmoothScrolling() {
+            const container = document.getElementById('featuresContainer');
+            const indicator = document.getElementById('scrollIndicator');
+            const cards = container.querySelectorAll('.feature-card');
+            
+            // Create scroll indicators
+            cards.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.classList.add('indicator-dot');
+                if (index === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    scrollToCard(index);
+                });
+                indicator.appendChild(dot);
+            });
+            
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            let velocity = 0;
+            let frame;
+            let timestamp;
+            let ticker;
+            
+            container.addEventListener('mousedown', (e) => {
+                isDown = true;
+                container.style.cursor = 'grabbing';
+                startX = e.pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                cancelAnimationFrame(frame);
+                velocity = 0;
+                timestamp = Date.now();
+                ticker = setInterval(() => {
+                    const now = Date.now();
+                    const elapsed = now - timestamp;
+                    timestamp = now;
+                    velocity = (container.scrollLeft - scrollLeft) / elapsed;
+                    scrollLeft = container.scrollLeft;
+                }, 100);
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                isDown = false;
+                container.style.cursor = 'grab';
+                clearInterval(ticker);
+            });
+            
+            container.addEventListener('mouseup', () => {
+                isDown = false;
+                container.style.cursor = 'grab';
+                clearInterval(ticker);
+                
+                // Apply momentum
+                if (Math.abs(velocity) > 0.1) {
+                    const momentum = velocity * 20;
+                    smoothScrollBy(container, momentum, 400);
+                }
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                container.scrollLeft = scrollLeft - walk;
+                updateIndicator();
+            });
+            
+            // Touch events for mobile
+            container.addEventListener('touchstart', (e) => {
+                isDown = true;
+                startX = e.touches[0].pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                velocity = 0;
+                timestamp = Date.now();
+                ticker = setInterval(() => {
+                    const now = Date.now();
+                    const elapsed = now - timestamp;
+                    timestamp = now;
+                    velocity = (container.scrollLeft - scrollLeft) / elapsed;
+                    scrollLeft = container.scrollLeft;
+                }, 100);
+            });
+            
+            container.addEventListener('touchend', () => {
+                isDown = false;
+                clearInterval(ticker);
+                
+                // Apply momentum
+                if (Math.abs(velocity) > 0.1) {
+                    const momentum = velocity * 20;
+                    smoothScrollBy(container, momentum, 400);
+                }
+            });
+            
+            container.addEventListener('touchmove', (e) => {
+                if (!isDown) return;
+                const x = e.touches[0].pageX - container.offsetLeft;
+                const walk = (x - startX) * 2;
+                container.scrollLeft = scrollLeft - walk;
+                updateIndicator();
+            });
+            
+            // Update scroll indicator
+            function updateIndicator() {
+                const scrollPercentage = container.scrollLeft / (container.scrollWidth - container.clientWidth);
+                const dotIndex = Math.floor(scrollPercentage * (cards.length - 1));
+                
+                document.querySelectorAll('.indicator-dot').forEach((dot, index) => {
+                    dot.classList.toggle('active', index === dotIndex);
+                });
+            }
+            
+            // Smooth scroll to specific card
+            function scrollToCard(index) {
+                const card = cards[index];
+                const containerWidth = container.clientWidth;
+                const cardWidth = card.offsetWidth;
+                const gap = 30; // gap between cards
+                const scrollPosition = index * (cardWidth + gap) - (containerWidth - cardWidth) / 2;
+                
+                smoothScrollTo(container, scrollPosition, 600);
+            }
+            
+            // Smooth scroll functions
+            function smoothScrollTo(element, to, duration) {
+                const start = element.scrollLeft;
+                const change = to - start;
+                const startTime = performance.now();
+                
+                function animateScroll(currentTime) {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    // Easing function (easeOutCubic)
+                    const ease = 1 - Math.pow(1 - progress, 3);
+                    element.scrollLeft = start + change * ease;
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animateScroll);
+                    } else {
+                        updateIndicator();
+                    }
+                }
+                
+                requestAnimationFrame(animateScroll);
+            }
+            
+            function smoothScrollBy(element, amount, duration) {
+                smoothScrollTo(element, element.scrollLeft + amount, duration);
+            }
+            
+            // Initialize indicator
+            updateIndicator();
+        }
+        
+        // Simple animation for feature cards on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            initSmoothScrolling();
+            
+            const featureCards = document.querySelectorAll('.feature-card');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0) scale(1)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            featureCards.forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px) scale(0.95)';
+                card.style.transition = 'opacity 0.5s, transform 0.5s';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
