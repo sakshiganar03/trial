@@ -16,11 +16,13 @@ import {
     reauthenticateWithPopup,
     deleteUser
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 // --- MODIFIED ---
-// Import all the Firestore functions we will need
-import {
-    getFirestore, setDoc, doc, getDoc,
-    collection, getDocs, updateDoc, deleteDoc, query, where, orderBy
+// Added 'addDoc' to imports
+import { 
+    getFirestore, setDoc, doc, getDoc, 
+    collection, getDocs, updateDoc, deleteDoc, addDoc, // <-- Added addDoc
+    query, where, orderBy 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // IMPORTANT: Replace with your actual Firebase config object
@@ -220,11 +222,10 @@ async function getUserProfileData() {
 }
 
 // --- EXPORTS (MODIFIED) ---
-// We export the necessary services and functions for other scripts to use.
 export {
     auth,
     db, 
-    provider, // <-- NEW EXPORT
+    provider, 
     onAuthStateChanged,
     signOut,
     getUserProfileData,
@@ -235,13 +236,13 @@ export {
     setDoc,
     updateDoc,
     deleteDoc,
+    addDoc, // <-- Added addDoc
     query,
     where,
     orderBy,
     sendPasswordResetEmail,
     confirmPasswordReset,
-    verifyPasswordResetCode, // (This was from last time)
-    // --- NEW EXPORTS ---
+    verifyPasswordResetCode, 
     EmailAuthProvider,
     reauthenticateWithCredential,
     reauthenticateWithPopup,
