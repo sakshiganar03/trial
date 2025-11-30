@@ -182,7 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
         hidePage(settingsPage);
         handleSignOut();
     });
-    if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
+   // Fix for Top-Right Sign In Button
+    if (signInBtn) {
+        signInBtn.addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
     
 
     // --- Chat History Logic (MODIFIED) ---
