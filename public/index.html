@@ -188,6 +188,91 @@
         </div>
     </div>
 
+    <div id="general-page" class="page fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <header class="page-header">
+            <button id="general-back-btn" class="p-2 rounded-full btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <h2 class="text-xl font-bold">General</h2>
+            <div class="w-10"></div> 
+        </header>
+        <div class="page-content space-y-4">
+            <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-[#5A67D8]">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Export Chat History</p>
+                        <p class="text-xs text-gray-500">Select and download your chats</p>
+                    </div>
+                </div>
+                <button id="export-data-btn" class="w-full py-2 bg-[#5A67D8] text-white text-sm font-medium rounded-lg hover:bg-[#4c51bf] transition">Select & Download</button>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-900">Report an Issue</p>
+                        <p class="text-xs text-gray-500">Found a bug?</p>
+                    </div>
+                </div>
+                <button id="report-issue-btn" class="w-full py-2 border border-red-200 text-red-500 text-sm font-medium rounded-lg hover:bg-red-50 transition">Contact Support</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="export-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="delete-modal-content w-full max-w-sm flex flex-col max-h-[80vh]">
+            <div class="text-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Select Chats</h3>
+                <p class="text-xs text-gray-500">Choose conversations to save.</p>
+            </div>
+            <div class="flex items-center justify-between px-2 mb-2 pb-2 border-b border-gray-100">
+                <span class="text-sm font-semibold text-gray-700">Select All</span>
+                <input type="checkbox" id="export-select-all" class="w-4 h-4 text-[#5A67D8] rounded cursor-pointer">
+            </div>
+            <div id="export-chat-list" class="overflow-y-auto flex-1 mb-4 space-y-2 pr-1 custom-scrollbar" style="min-height: 100px;">
+                <p class="text-center text-gray-400 text-sm py-4">Loading chats...</p>
+            </div>
+            <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                <button id="export-cancel-btn" class="btn btn-secondary px-4 py-2 text-sm">Cancel</button>
+                <button id="export-confirm-btn" class="btn btn-primary px-4 py-2 text-sm">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="report-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+        <div class="delete-modal-content w-full max-w-sm">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Report an Issue</h3>
+            <form id="report-form">
+                <div class="input-group" style="margin-bottom: 1rem;">
+                    <i class="fas fa-heading"></i>
+                    <input type="text" id="report-subject" placeholder="Subject (e.g. Bug)" required style="border-bottom-width: 2px;">
+                </div>
+                <div class="input-group" style="margin-bottom: 1.5rem;">
+                    <i class="fas fa-comment-alt" style="top: 15px; transform: none;"></i>
+                    <textarea id="report-description" rows="4" placeholder="Describe the issue..." required 
+                        style="width: 100%; background: transparent; border: none; border-bottom: 2px solid #C4D9FF; padding: 10px 10px 10px 2rem; outline: none; resize: none; font-family: 'Inter', sans-serif; color: #2D3748;"></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" id="report-cancel-btn" class="btn btn-secondary px-4 py-2 text-sm">Cancel</button>
+                    <button type="submit" id="report-send-btn" class="btn btn-primary px-4 py-2 text-sm">Send</button>
+                </div>
+            </form>
+            <div id="report-success-msg" class="hidden text-center py-4">
+                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 text-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h4 class="font-bold text-gray-800">Report Sent!</h4>
+                <p class="text-sm text-gray-600 mb-4">Thanks for the feedback.</p>
+                <button id="report-done-btn" class="btn btn-primary w-full py-2">Close</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="script.js"></script>    
 </body>
 </html>
