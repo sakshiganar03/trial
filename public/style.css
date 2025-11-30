@@ -522,3 +522,41 @@ main {
 .delete-modal-content .message-div {
     margin-bottom: 1rem;
 }
+
+/* --- Export Modal List Styling --- */
+.export-chat-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border: 1px solid transparent;
+}
+.export-chat-item:hover {
+    background-color: #F7FAFC;
+    border-color: #E2E8F0;
+}
+.export-chat-item label {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #2D3748;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+    cursor: pointer;
+}
+.export-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #5A67D8;
+    cursor: pointer;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #C4D9FF; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #5A67D8; }
+
+/* Report Textarea Fix */
+#report-description:focus { border-bottom-color: #5A67D8 !important; }
