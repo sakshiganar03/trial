@@ -1,8 +1,7 @@
 // --- Firebase Imports (MODIFIED) ---
 import {
     auth, onAuthStateChanged, signOut, getUserProfileData,
-    db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, 
-    onSnapshot, // <-- ADDED onSnapshot
+    db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, // <-- ADD addDoc
     query, orderBy,
     provider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser
 } from './firebaseauth.js';
@@ -109,10 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profileBackBtn) {
         profileBackBtn.addEventListener('click', () => hidePage(editProfilePage));
     }
-
-    // --- NEW: Device Page Navigation ---
-    if(deviceLink) deviceLink.addEventListener('click', (e) => { e.preventDefault(); showPage(devicePage); });
-    if(deviceBackBtn) deviceBackBtn.addEventListener('click', () => hidePage(devicePage));
     
     // --- Authentication and Profile Data Logic (MODIFIED) ---
     onAuthStateChanged(auth, async (user) => {
@@ -182,12 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hidePage(settingsPage);
         handleSignOut();
     });
-   // Fix for Top-Right Sign In Button
-    if (signInBtn) {
-        signInBtn.addEventListener('click', () => {
-            window.location.href = 'login.html';
-        });
-    }
+    if (signInBtn) signInBtn.addEventListener('click', () => { window.location.href = 'login.html'; });
     
 
     // --- Chat History Logic (MODIFIED) ---
@@ -863,61 +853,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ==========================================
-    // NEW: MY DEVICE LOGIC (PASSIVE DASHBOARD)
-    // ==========================================
-
-    // --- NEW: My Device UI References ---
-    const devicePage = document.getElementById('device-page');
-    const deviceLink = document.getElementById('device-link');     // <--- THIS IS CRITICAL
-    const deviceBackBtn = document.getElementById('device-back-btn');
-    
-    const updateDeviceStatus = (data) => {
-        const isConnected = data && data.bluetoothConnected === true; 
-        const batteryLevel = data ? data.batteryLevel : 0;
-
-        if (isConnected) {
-            connectionText.innerHTML = '<span class="text-green-500">● Connected</span>';
-            btIconBg.classList.remove('bg-gray-100', 'text-gray-400');
-            btIconBg.classList.add('bg-blue-50', 'text-[#5A67D8]');
-            if(connectionPulse) connectionPulse.classList.remove('hidden');
-            if(batterySection) batterySection.classList.remove('opacity-50'); 
-            
-            if(batteryPercentEl) batteryPercentEl.textContent = `${batteryLevel}%`;
-            if(batteryBar) batteryBar.style.width = `${batteryLevel}%`;
-            
-            let colorClass = 'bg-green-500';
-            if (batteryLevel < 20) colorClass = 'bg-red-500';
-            else if (batteryLevel < 50) colorClass = 'bg-yellow-500';
-            if(batteryBar) batteryBar.className = `h-3 rounded-full transition-all duration-500 ${colorClass}`;
-
-            const totalMinutes = (batteryLevel / 100) * 240; 
-            const hours = Math.floor(totalMinutes / 60);
-            const mins = Math.floor(totalMinutes % 60);
-            if(runtimeText) runtimeText.textContent = `${hours}h ${mins}m`;
-
-        } else {
-            connectionText.innerHTML = '<span class="text-gray-400">○ Disconnected</span>';
-            btIconBg.classList.remove('bg-blue-50', 'text-[#5A67D8]');
-            btIconBg.classList.add('bg-gray-100', 'text-gray-400');
-            if(connectionPulse) connectionPulse.classList.add('hidden');
-            if(batterySection) batterySection.classList.add('opacity-50'); 
-            
-            if(batteryPercentEl) batteryPercentEl.textContent = "--%";
-            if(batteryBar) batteryBar.style.width = "0%";
-            if(runtimeText) runtimeText.textContent = "--";
-        }
-    };
-
-    const initDeviceListener = () => {
-        const user = auth.currentUser;
-        if (!user) return;
-        const docRef = doc(db, 'users', user.uid, 'device', 'status');
-        onSnapshot(docRef, (docSnap) => {
-            if (docSnap.exists()) updateDeviceStatus(docSnap.data());
-            else updateDeviceStatus(null);
-        }, (error) => console.error("Device listener error:", error));
-    };
 
     // --- Initial Load (MODIFIED) ---
     // We no longer call the functions here,
