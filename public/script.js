@@ -1,8 +1,8 @@
 // --- Firebase Imports (MODIFIED) ---
 import {
     auth, onAuthStateChanged, signOut, getUserProfileData,
-    db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy,
-    // --- IMPORTS FOR DELETE FUNCTION ---
+    db, collection, doc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, // <-- ADD addDoc
+    query, orderBy,
     provider, EmailAuthProvider, reauthenticateWithCredential, reauthenticateWithPopup, deleteUser
 } from './firebaseauth.js';
 
@@ -712,6 +712,147 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // ==========================================
+    // GENERAL SETTINGS & UTILITIES
+    // ==========================================
+
+    // 1. General Page Navigation
+    const generalPage = document.getElementById('general-page');
+    const generalLink = document.getElementById('general-link');
+    const generalBackBtn = document.getElementById('general-back-btn');
+
+    if (generalLink) generalLink.addEventListener('click', (e) => { e.preventDefault(); showPage(generalPage); });
+    if (generalBackBtn) generalBackBtn.addEventListener('click', () => hidePage(generalPage));
+
+    // 2. Report Issue Logic (Save to Firebase)
+    const reportIssueBtn = document.getElementById('report-issue-btn');
+    const reportModal = document.getElementById('report-modal');
+    const reportForm = document.getElementById('report-form');
+    const reportCancelBtn = document.getElementById('report-cancel-btn');
+    const reportSendBtn = document.getElementById('report-send-btn');
+    const reportSuccessMsg = document.getElementById('report-success-msg');
+    const reportDoneBtn = document.getElementById('report-done-btn');
+
+    if (reportIssueBtn) {
+        reportIssueBtn.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            reportModal.classList.remove('hidden');
+            reportForm.classList.remove('hidden');
+            reportSuccessMsg.classList.add('hidden');
+            reportForm.reset();
+        });
+    }
+    if (reportCancelBtn) reportCancelBtn.addEventListener('click', () => reportModal.classList.add('hidden'));
+    
+    if (reportForm) {
+        reportForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('report-subject').value;
+            const description = document.getElementById('report-description').value;
+            const user = auth.currentUser;
+
+            reportSendBtn.textContent = 'Sending...';
+            reportSendBtn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "reports"), {
+                    subject: subject,
+                    description: description,
+                    userId: user ? user.uid : "anonymous",
+                    userEmail: user ? user.email : "anonymous",
+                    timestamp: new Date(),
+                    status: "new"
+                });
+                reportForm.classList.add('hidden');
+                reportSuccessMsg.classList.remove('hidden');
+            } catch (error) {
+                console.error("Error reporting:", error);
+                alert("Could not send report.");
+            } finally {
+                reportSendBtn.textContent = 'Send';
+                reportSendBtn.disabled = false;
+            }
+        });
+    }
+    if (reportDoneBtn) reportDoneBtn.addEventListener('click', () => reportModal.classList.add('hidden'));
+
+
+    // 3. Export Data Logic (Select & Download)
+    const exportDataBtn = document.getElementById('export-data-btn');
+    const exportModal = document.getElementById('export-modal');
+    const exportChatList = document.getElementById('export-chat-list');
+    const exportSelectAll = document.getElementById('export-select-all');
+    const exportCancelBtn = document.getElementById('export-cancel-btn');
+    const exportConfirmBtn = document.getElementById('export-confirm-btn');
+
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', () => {
+            exportModal.classList.remove('hidden');
+            exportChatList.innerHTML = '';
+            if (exportSelectAll) exportSelectAll.checked = false;
+
+            if (!allChats || allChats.length === 0) {
+                exportChatList.innerHTML = '<p class="text-center text-red-500 text-sm py-4">No chats found.</p>';
+                exportConfirmBtn.disabled = true;
+                return;
+            }
+            exportConfirmBtn.disabled = false;
+
+            allChats.forEach(chat => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'export-chat-item';
+                const displayTitle = chat.title.length > 25 ? chat.title.substring(0, 22) + '...' : chat.title;
+                const date = new Date(chat.id).toLocaleDateString();
+
+                itemDiv.innerHTML = `
+                    <input type="checkbox" class="export-checkbox" value="${chat.id}" id="chk-${chat.id}">
+                    <label for="chk-${chat.id}">
+                        <div class="font-medium">${displayTitle}</div>
+                        <div class="text-xs text-gray-400">${date}</div>
+                    </label>
+                `;
+                exportChatList.appendChild(itemDiv);
+            });
+        });
+    }
+
+    if (exportSelectAll) {
+        exportSelectAll.addEventListener('change', (e) => {
+            document.querySelectorAll('.export-checkbox').forEach(cb => cb.checked = e.target.checked);
+        });
+    }
+    if (exportCancelBtn) exportCancelBtn.addEventListener('click', () => exportModal.classList.add('hidden'));
+
+    if (exportConfirmBtn) {
+        exportConfirmBtn.addEventListener('click', () => {
+            const checkboxes = document.querySelectorAll('.export-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert("Select at least one chat.");
+                return;
+            }
+            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+            const selectedChats = allChats.filter(chat => selectedIds.includes(String(chat.id)));
+
+            exportConfirmBtn.textContent = "Downloading...";
+            setTimeout(() => {
+                const dataStr = JSON.stringify(selectedChats, null, 2);
+                const blob = new Blob([dataStr], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `edith_chats_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                exportModal.classList.add('hidden');
+                exportConfirmBtn.textContent = "Download";
+            }, 800);
+        });
+    }
+
 
     // --- Initial Load (MODIFIED) ---
     // We no longer call the functions here,
