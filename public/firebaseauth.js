@@ -18,11 +18,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // --- MODIFIED ---
-// Added 'addDoc' to imports
-import { 
-    getFirestore, setDoc, doc, getDoc, 
-    collection, getDocs, updateDoc, deleteDoc, addDoc, // <-- Added addDoc
-    query, where, orderBy 
+// Added 'onSnapshot' to imports
+import {
+    getFirestore, setDoc, doc, getDoc,
+    collection, getDocs, updateDoc, deleteDoc, addDoc, 
+    onSnapshot, // <--- ADD THIS
+    query, where, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // IMPORTANT: Replace with your actual Firebase config object
@@ -224,8 +225,8 @@ async function getUserProfileData() {
 // --- EXPORTS (MODIFIED) ---
 export {
     auth,
-    db, 
-    provider, 
+    db,
+    provider,
     onAuthStateChanged,
     signOut,
     getUserProfileData,
@@ -236,15 +237,17 @@ export {
     setDoc,
     updateDoc,
     deleteDoc,
-    addDoc, // <-- Added addDoc
+    addDoc,
+    onSnapshot, // <--- ADD THIS to exports
     query,
     where,
     orderBy,
     sendPasswordResetEmail,
     confirmPasswordReset,
-    verifyPasswordResetCode, 
+    verifyPasswordResetCode,
     EmailAuthProvider,
     reauthenticateWithCredential,
     reauthenticateWithPopup,
     deleteUser
 };
+
