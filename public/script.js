@@ -861,6 +861,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // NEW: MY DEVICE LOGIC (PASSIVE DASHBOARD)
     // ==========================================
+
+    // --- NEW: My Device UI References ---
+    const devicePage = document.getElementById('device-page');
+    const deviceLink = document.getElementById('device-link');     // <--- THIS IS CRITICAL
+    const deviceBackBtn = document.getElementById('device-back-btn');
     
     // UI Helpers for Device Status
     const updateDeviceStatus = (data) => {
