@@ -853,6 +853,91 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ==========================================
+    // NEW: MY DEVICE LOGIC (PASSIVE DASHBOARD)
+    // ==========================================
+
+    // --- NEW: My Device UI References ---
+    const devicePage = document.getElementById('device-page');
+    const deviceLink = document.getElementById('device-link');
+    const deviceBackBtn = document.getElementById('device-back-btn');
+    const btIconBg = document.getElementById('bt-icon-bg');
+    const connectionText = document.getElementById('connection-status-text');
+    const connectionPulse = document.getElementById('connection-pulse');
+    const batterySection = document.getElementById('battery-section');
+    const batteryPercentEl = document.getElementById('battery-percent');
+    const batteryBar = document.getElementById('battery-bar');
+    const runtimeText = document.getElementById('runtime-text');
+
+    // --- NEW: Device Page Navigation ---
+    if(deviceLink) deviceLink.addEventListener('click', (e) => { e.preventDefault(); showPage(devicePage); });
+    if(deviceBackBtn) deviceBackBtn.addEventListener('click', () => hidePage(devicePage));
+    
+    // UI Helpers for Device Status
+    const updateDeviceStatus = (data) => {
+        // Assume data structure: { batteryLevel: 85, bluetoothConnected: true, lastSeen: Timestamp }
+        const isConnected = data && data.bluetoothConnected === true; 
+        const batteryLevel = data ? data.batteryLevel : 0;
+
+        if (isConnected) {
+            // Connected State
+            connectionText.innerHTML = '<span class="text-green-500">● Connected</span>';
+            btIconBg.classList.remove('bg-gray-100', 'text-gray-400');
+            btIconBg.classList.add('bg-blue-50', 'text-[#5A67D8]');
+            connectionPulse.classList.remove('hidden');
+            batterySection.classList.remove('opacity-50'); 
+            
+            // Update Battery Bar
+            batteryPercentEl.textContent = `${batteryLevel}%`;
+            batteryBar.style.width = `${batteryLevel}%`;
+            
+            let colorClass = 'bg-green-500';
+            if (batteryLevel < 20) colorClass = 'bg-red-500';
+            else if (batteryLevel < 50) colorClass = 'bg-yellow-500';
+            batteryBar.className = `h-3 rounded-full transition-all duration-500 ${colorClass}`;
+
+            // Calculate Runtime (4 hours max)
+            const totalMinutes = (batteryLevel / 100) * 240; 
+            const hours = Math.floor(totalMinutes / 60);
+            const mins = Math.floor(totalMinutes % 60);
+            runtimeText.textContent = `${hours}h ${mins}m`;
+
+        } else {
+            // Disconnected State
+            connectionText.innerHTML = '<span class="text-gray-400">○ Disconnected</span>';
+            btIconBg.classList.remove('bg-blue-50', 'text-[#5A67D8]');
+            btIconBg.classList.add('bg-gray-100', 'text-gray-400');
+            connectionPulse.classList.add('hidden');
+            batterySection.classList.add('opacity-50'); 
+            
+            batteryPercentEl.textContent = "--%";
+            batteryBar.style.width = "0%";
+            runtimeText.textContent = "--";
+        }
+    };
+
+    // Firebase Listener for Device Status
+    const initDeviceListener = () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        // Path: users/{uid}/device/status
+        // Your ESP32 MUST write to this path!
+        const docRef = doc(db, 'users', user.uid, 'device', 'status');
+
+        onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                updateDeviceStatus(docSnap.data());
+            } else {
+                updateDeviceStatus(null);
+            }
+        }, (error) => {
+            console.error("Device listener error:", error);
+        });
+    };
+
+    
+
 
     // --- Initial Load (MODIFIED) ---
     // We no longer call the functions here,
