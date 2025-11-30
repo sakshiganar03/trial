@@ -273,6 +273,52 @@
         </div>
     </div>
 
+    <div id="device-page" class="page fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <header class="page-header">
+            <button id="device-back-btn" class="p-2 rounded-full btn-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+            <h2 class="text-xl font-bold">My Device</h2>
+            <div class="w-10"></div> 
+        </header>
+        
+        <div class="page-content space-y-6">
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                <div class="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
+                    <div class="flex items-center gap-4">
+                        <div id="bt-icon-bg" class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 transition-colors duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10-5 5V2l5 5L7 17"></path></svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-gray-900 text-lg">EDITH Glasses</p>
+                            <p id="connection-status-text" class="text-sm font-medium text-gray-400">○ Disconnected</p>
+                        </div>
+                    </div>
+                    
+                    <div id="connection-pulse" class="hidden relative flex h-3 w-3">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </div>
+                </div>
+
+                <div id="battery-section" class="transition-opacity duration-300 opacity-50"> <div class="flex justify-between items-end mb-2">
+                        <span class="text-gray-500 font-medium text-sm">Battery Level</span>
+                        <span id="battery-percent" class="text-2xl font-bold text-gray-800">--%</span>
+                    </div>
+                    
+                    <div class="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                        <div id="battery-bar" class="bg-gray-400 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+
+                    <div class="flex items-center gap-2 mt-4 text-gray-500 bg-gray-50 p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span class="text-sm font-medium">Est. Runtime: <span id="runtime-text" class="text-gray-800 font-bold">--</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="script.js"></script>    
 </body>
 </html>
