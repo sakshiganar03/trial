@@ -857,10 +857,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // NEW: MY DEVICE LOGIC (PASSIVE DASHBOARD)
     // ==========================================
 
-    // --- NEW: My Device UI References ---
+// --- A. Navigation & UI References ---
     const devicePage = document.getElementById('device-page');
     const deviceLink = document.getElementById('device-link');
     const deviceBackBtn = document.getElementById('device-back-btn');
+    
+    // Status Elements
     const btIconBg = document.getElementById('bt-icon-bg');
     const connectionText = document.getElementById('connection-status-text');
     const connectionPulse = document.getElementById('connection-pulse');
@@ -869,10 +871,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const batteryBar = document.getElementById('battery-bar');
     const runtimeText = document.getElementById('runtime-text');
 
-    // --- NEW: Device Page Navigation ---
-    if(deviceLink) deviceLink.addEventListener('click', (e) => { e.preventDefault(); showPage(devicePage); });
-    if(deviceBackBtn) deviceBackBtn.addEventListener('click', () => hidePage(devicePage));
-    
+    // Features Modal Elements
+    const featuresBtn = document.getElementById('features-btn');
+    const featuresModal = document.getElementById('features-modal');
+    const featuresCloseBtn = document.getElementById('features-close-btn');
+
+    // --- B. Event Listeners (Navigation) ---
+    if (deviceLink) {
+        deviceLink.addEventListener('click', (e) => { 
+            e.preventDefault(); 
+            showPage(devicePage); 
+        });
+    }
+    if (deviceBackBtn) {
+        deviceBackBtn.addEventListener('click', () => hidePage(devicePage));
+    }
+
+    // --- C. Event Listeners (Features Modal) ---
+    if (featuresBtn) {
+        featuresBtn.addEventListener('click', () => {
+            featuresModal.classList.remove('hidden');
+        });
+    }
+    if (featuresCloseBtn) {
+        featuresCloseBtn.addEventListener('click', () => {
+            featuresModal.classList.add('hidden');
+        });
+    }
     // UI Helpers for Device Status
     const updateDeviceStatus = (data) => {
         // Assume data structure: { batteryLevel: 85, bluetoothConnected: true, lastSeen: Timestamp }
