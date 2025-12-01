@@ -980,7 +980,60 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    
+    // ==========================================
+    // ABOUT PAGE SUB-MENUS LOGIC
+    // ==========================================
+
+    // 1. About Project Modal
+    const aboutProjectBtn = document.getElementById('about-project-btn');
+    const aboutProjectModal = document.getElementById('about-project-modal');
+    const aboutProjectClose = document.getElementById('about-project-close');
+
+    if (aboutProjectBtn) {
+        aboutProjectBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            aboutProjectModal.classList.remove('hidden');
+        });
+    }
+    if (aboutProjectClose) {
+        aboutProjectClose.addEventListener('click', () => {
+            aboutProjectModal.classList.add('hidden');
+        });
+    }
+
+    // 2. Privacy Policy Modal
+    const privacyBtn = document.getElementById('privacy-btn');
+    const privacyModal = document.getElementById('privacy-modal');
+    const privacyClose = document.getElementById('privacy-close');
+
+    if (privacyBtn) {
+        privacyBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            privacyModal.classList.remove('hidden');
+        });
+    }
+    if (privacyClose) {
+        privacyClose.addEventListener('click', () => {
+            privacyModal.classList.add('hidden');
+        });
+    }
+
+    // 3. Licenses Modal
+    const licensesBtn = document.getElementById('licenses-btn');
+    const licensesModal = document.getElementById('licenses-modal');
+    const licensesClose = document.getElementById('licenses-close');
+
+    if (licensesBtn) {
+        licensesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            licensesModal.classList.remove('hidden');
+        });
+    }
+    if (licensesClose) {
+        licensesClose.addEventListener('click', () => {
+            licensesModal.classList.add('hidden');
+        });
+    }
 
 
     // --- Initial Load (MODIFIED) ---
