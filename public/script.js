@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const editProfilePage = document.getElementById('edit-profile-page');
     const profileBackBtn = document.getElementById('profile-back-btn');
     const editProfileLink = document.getElementById('edit-profile-link');
-    const aboutLink = document.getElementById('about-link');
     const signOutBtn = document.getElementById('sign-out-btn');
     const profileFirstNameDisplay = document.getElementById('profile-firstname');
     const profileLastNameDisplay = document.getElementById('profile-lastname');
@@ -721,26 +720,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const generalPage = document.getElementById('general-page');
     const generalLink = document.getElementById('general-link');
     const generalBackBtn = document.getElementById('general-back-btn');
-    // 2. Usage Guidelines Logic (In "General")
-    const guidelinesBtn = document.getElementById('guidelines-btn');
-    const guidelinesModal = document.getElementById('guidelines-modal');
-    const guidelinesCloseBtn = document.getElementById('guidelines-close-btn');
 
-    // Open "Guidelines"
-    if (guidelinesBtn) {
-        guidelinesBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            guidelinesModal.classList.remove('hidden');
-        });
-    }
-
-    // Close "Guidelines"
-    if (guidelinesCloseBtn) {
-        guidelinesCloseBtn.addEventListener('click', () => {
-            guidelinesModal.classList.add('hidden');
-        });
-    }
-
+    
     if (generalLink) generalLink.addEventListener('click', (e) => { e.preventDefault(); showPage(generalPage); });
     if (generalBackBtn) generalBackBtn.addEventListener('click', () => hidePage(generalPage));
 
