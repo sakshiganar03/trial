@@ -721,6 +721,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const generalPage = document.getElementById('general-page');
     const generalLink = document.getElementById('general-link');
     const generalBackBtn = document.getElementById('general-back-btn');
+    // 2. Usage Guidelines Logic (In "General")
+    const guidelinesBtn = document.getElementById('guidelines-btn');
+    const guidelinesModal = document.getElementById('guidelines-modal');
+    const guidelinesCloseBtn = document.getElementById('guidelines-close-btn');
+
+    // Open "Guidelines"
+    if (guidelinesBtn) {
+        guidelinesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            guidelinesModal.classList.remove('hidden');
+        });
+    }
+
+    // Close "Guidelines"
+    if (guidelinesCloseBtn) {
+        guidelinesCloseBtn.addEventListener('click', () => {
+            guidelinesModal.classList.add('hidden');
+        });
+    }
 
     if (generalLink) generalLink.addEventListener('click', (e) => { e.preventDefault(); showPage(generalPage); });
     if (generalBackBtn) generalBackBtn.addEventListener('click', () => hidePage(generalPage));
