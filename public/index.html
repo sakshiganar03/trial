@@ -273,6 +273,92 @@
         </div>
     </div>
 
+    <div id="guidelines-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
+    <div class="delete-modal-content w-full max-w-sm max-h-[80vh] overflow-y-auto custom-scrollbar">
+        
+        <div class="text-center mb-6">
+            <h3 class="text-xl font-bold text-gray-900">User Manual</h3>
+            <p class="text-xs text-[#5A67D8] font-bold uppercase tracking-wider">Operational Guidelines</p>
+        </div>
+
+        <ul class="space-y-6 text-sm text-gray-600">
+            
+            <li class="flex gap-3 items-start">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#5A67D8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+                <div>
+                    <strong class="text-gray-900 block text-base mb-1">1. Setup & Wearing</strong>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-gray-500">
+                        <li>Place glasses comfortably; align the projection lens with your eye level.</li>
+                        <li>Do not force the frame to avoid circuit damage.</li>
+                        <li>Toggle the power switch to turn on the Edith boot screen.</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="flex gap-3 items-start">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#5A67D8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 7 10 10-5 5V2l5 5L7 17"></path></svg>
+                </div>
+                <div>
+                    <strong class="text-gray-900 block text-base mb-1">2. Connection & Sync</strong>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-gray-500">
+                        <li>Enable Bluetooth on your mobile device.</li>
+                        <li>Open this companion app and select "AI Glasses" from the device list.</li>
+                        <li>Wait for the "Connected" status before sending queries.</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="flex gap-3 items-start">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#5A67D8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </div>
+                <div>
+                    <strong class="text-gray-900 block text-base mb-1">3. AI Interaction & Display</strong>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-gray-500">
+                        <li>Type queries in the app to see responses on the OLED lens.</li>
+                        <li>Keep your head steady for clear projection reading.</li>
+                        <li>Avoid extreme sunlight; adjust brightness in "My Device" settings if needed.</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="flex gap-3 items-start">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[#5A67D8]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                </div>
+                <div>
+                    <strong class="text-gray-900 block text-base mb-1">4. Care & Maintenance</strong>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-gray-500">
+                        <li>Charge with standard 5V USB; disconnect when full.</li>
+                        <li>Clean lens with microfiber cloth only (no chemicals).</li>
+                        <li>Regularly check app for firmware updates for new features.</li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="flex gap-3 items-start">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-50 flex items-center justify-center text-red-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                </div>
+                <div>
+                    <strong class="text-gray-900 block text-base mb-1">5. Safety & Support</strong>
+                    <ul class="list-disc pl-4 space-y-1 text-xs text-gray-500">
+                        <li>Do not use while driving or operating heavy machinery.</li>
+                        <li>Keep away from water, dust, and high heat.</li>
+                        <li>In case of errors, restart the device or contact support via General Settings.</li>
+                    </ul>
+                </div>
+            </li>
+
+        </ul>
+        
+        <button id="guidelines-close-btn" class="btn btn-secondary w-full mt-8 py-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-xl transition">Close Guide</button>
+    </div>
+</div>
+
     <div id="device-page" class="page fixed inset-0 z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
         <header class="page-header">
             <button id="device-back-btn" class="p-2 rounded-full btn-icon">
