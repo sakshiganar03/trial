@@ -873,6 +873,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
+    // GUIDELINES LOGIC
+    // ==========================================
+    
+    // References
+    const guidelinesBtn = document.getElementById('guidelines-btn'); // The button in General page
+    const guidelinesModal = document.getElementById('guidelines-modal');
+    const guidelinesCloseBtn = document.getElementById('guidelines-close-btn');
+
+    // Open Modal
+    if (guidelinesBtn) {
+        guidelinesBtn.addEventListener('click', () => {
+            guidelinesModal.classList.remove('hidden');
+        });
+    }
+
+    // Close Modal
+    if (guidelinesCloseBtn) {
+        guidelinesCloseBtn.addEventListener('click', () => {
+            guidelinesModal.classList.add('hidden');
+        });
+    }
+
+    // ==========================================
     // NEW: MY DEVICE LOGIC (PASSIVE DASHBOARD)
     // ==========================================
 
@@ -983,6 +1006,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // ABOUT PAGE SUB-MENUS LOGIC
     // ==========================================
+
+    const aboutPage = document.getElementById('about-page');
+    const aboutLink = document.getElementById('about-link');
+    const aboutBackBtn = document.getElementById('about-back-btn');
+
+    if (aboutLink) aboutLink.addEventListener('click', (e) => { e.preventDefault(); showPage(aboutPage); });
+    if (aboutBackBtn) aboutBackBtn.addEventListener('click', () => hidePage(aboutPage));
 
     // 1. About Project Modal
     const aboutProjectBtn = document.getElementById('about-project-btn');
