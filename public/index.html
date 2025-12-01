@@ -516,11 +516,15 @@
 </div>
 
     <div id="about-project-modal" class="modal-overlay fixed inset-0 flex items-center justify-center p-4 hidden z-50">
-    <div class="delete-modal-content w-full max-w-sm text-center pt-8 pb-8 relative">
+    <div class="delete-modal-content w-full max-w-sm bg-white rounded-2xl shadow-2xl flex flex-col max-h-[85vh] relative p-0 overflow-hidden">
         
-        <button id="about-project-close" class="absolute top-3 right-3 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
+        <div class="sticky top-0 right-0 w-full flex justify-end p-4 bg-white z-10">
+            <button id="about-project-close" class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+
+        <div class="overflow-y-auto custom-scrollbar px-6 pb-8 text-center">
 
         <div class="w-20 h-20 bg-[#4A90E2] rounded-2xl mx-auto flex items-center justify-center text-white shadow-lg mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path></svg>
